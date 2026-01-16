@@ -517,13 +517,11 @@ body {
 /* Sticks Visualization */
 .sticks-container {
     display: flex;
-    gap: 2px;
+    gap: 3px;
     align-items: flex-end;
-    height: 60px;
+    min-height: 80px;
     margin-top: 5px;
     flex-wrap: nowrap;
-    max-width: 100%;
-    overflow: hidden;
 }
 
 .ten-bar {
