@@ -245,7 +245,7 @@ class MathApp {
         const pText = this.lectInputs.pures ? `<span class="tens">${this.lectInputs.pures}</span>` : '';
         const uText = this.lectInputs.units ? `<span class="units">${this.lectInputs.units}</span>` : '';
         this.elements.exerciseContainer.innerHTML = `
-            <div class="flex-row items-center justify-center gap-4 w-full animate-pop wrap">
+            <div class="flex-row items-center justify-center gap-4 w-full animate-pop">
                 <div class="cursive-text" style="font-size:3rem; margin-right:1rem;">${this.getColoredWord(this.val1)}</div>
                 <div class="flex-row items-center gap-2">
                     <span class="text-3xl" style="color:var(--neutral-300)">→</span>
@@ -263,7 +263,7 @@ class MathApp {
 
     renderBloques() {
         this.elements.exerciseContainer.innerHTML = `
-            <div class="flex-row items-center justify-center gap-6 w-full animate-pop wrap" style="min-height: 120px;">
+            <div class="flex-row items-center justify-center gap-6 w-full animate-pop" style="min-height: 120px;">
                 <div style="display:flex; align-items:flex-end;">${this.getSticks(this.val1, '#1e3a8a')}</div>
                 <span class="text-4xl" style="color:var(--neutral-300); font-weight:lighter;">=</span>
                 <div class="flex-row gap-4 items-center">
@@ -311,7 +311,7 @@ class MathApp {
 
         // Ensure horizontal flow for sums/subtractions too
         this.elements.exerciseContainer.innerHTML = `
-            <div class="flex-row items-center justify-center gap-4 animate-pop w-full wrap">
+            <div class="flex-row items-center justify-center gap-4 animate-pop w-full">
                 <div class="flex-col items-center">${this.formatNumber(this.val1)}${s1}</div>
                 <div class="op-symbol">${this.gameMode === 'sumas' ? '＋' : '－'}</div>
                 <div class="flex-col items-center">${this.formatNumber(this.val2)}${s2}</div>
