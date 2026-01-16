@@ -818,16 +818,25 @@ class MathApp {
                 </div>
             </div>`;
 
+        // Calcular tamaño de burbujas en función de filas y columnas
+        const maxGridHeight = 300; // altura máxima disponible para el grid
+        const maxGridWidth = 500;  // ancho máximo disponible
+        const gap = 6;
+        const bubbleHeight = Math.floor((maxGridHeight - (rows - 1) * gap) / rows);
+        const bubbleWidth = Math.floor((maxGridWidth - (cols - 1) * gap) / cols);
+        const bubbleSize = Math.min(bubbleHeight, bubbleWidth, 70); // máximo 70px
+        const fontSize = bubbleSize > 40 ? '1.2rem' : (bubbleSize > 25 ? '0.9rem' : '0.7rem');
+
         // Generar grid visual
-        let grid = `<div style="display:grid; grid-template-columns:repeat(${cols}, 1fr); gap:6px; width:100%;">`;
+        let grid = `<div style="display:grid; grid-template-columns:repeat(${cols}, ${bubbleSize}px); gap:${gap}px; justify-content:center;">`;
         for (let r = 0; r < this.caminoGrid.length; r++) {
             for (let c = 0; c < this.caminoGrid[r].length; c++) {
                 const num = this.caminoGrid[r][c];
                 if (num === null) {
-                    grid += `<div style="aspect-ratio:1;"></div>`;
+                    grid += `<div style="width:${bubbleSize}px; height:${bubbleSize}px;"></div>`;
                 } else {
                     const isPassed = num < this.currentPathNum;
-                    grid += `<div onclick="clickCamino(${num}, this)" class="camino-btn ${isPassed ? 'active-path' : ''}" style="aspect-ratio:1; display:flex; align-items:center; justify-content:center; font-size:1rem;">${num}</div>`;
+                    grid += `<div onclick="clickCamino(${num}, this)" class="camino-btn ${isPassed ? 'active-path' : ''}" style="width:${bubbleSize}px; height:${bubbleSize}px; display:flex; align-items:center; justify-content:center; font-size:${fontSize};">${num}</div>`;
                 }
             }
         }
