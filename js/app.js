@@ -161,6 +161,11 @@ class MathApp {
         window.closeModalIA = () => this.elements.geminiModal.style.display = 'none';
         window.generateExercise = () => this.generateExercise();
 
+        // Check offline status for IA features
+        this.checkOnlineStatus();
+        window.addEventListener('online', () => this.checkOnlineStatus());
+        window.addEventListener('offline', () => this.checkOnlineStatus());
+
         // Currículo
         window.openCurriculumModal = () => this.openCurriculumModal();
         window.closeCurriculumModal = () => this.closeCurriculumModal();
@@ -168,6 +173,20 @@ class MathApp {
         window.startActivityFromCurriculum = (activity) => this.startActivityFromCurriculum(activity);
         window.setActiveVecino = (v) => this.setActiveVecino(v);
         window.checkReloj = (opt) => this.checkReloj(opt);
+    }
+
+    checkOnlineStatus() {
+        const isOnline = navigator.onLine;
+        const iaBtn = document.querySelector('.gemini-btn');
+        if (iaBtn) {
+            if (isOnline) {
+                iaBtn.classList.remove('offline-mode');
+                iaBtn.title = "Requiere Internet";
+            } else {
+                iaBtn.classList.add('offline-mode');
+                iaBtn.title = "IA Deshabilitada (Sin Internet)";
+            }
+        }
     }
 
     startActivity(mode) {
