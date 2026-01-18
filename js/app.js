@@ -64,8 +64,66 @@ class MathApp {
                 gameContainer: document.getElementById('game-container'),
                 diff1: document.getElementById('diff-1'),
                 diff2: document.getElementById('diff-2'),
-                diff3: document.getElementById('diff-3')
+                diff3: document.getElementById('diff-3'),
+                curriculumList: document.getElementById('curriculum-list'),
+                curriculumModal: document.getElementById('curriculum-modal')
             }
+        };
+
+        // Currículo LOMLOE - 1º Primaria - Matemáticas
+        this.curriculumObjectives = [
+            {
+                id: 'CE1',
+                title: 'Resolución de problemas',
+                description: 'Interpretar y resolver problemas de la vida cotidiana utilizando estrategias matemáticas.',
+                activities: ['sumas', 'restas', 'batido', 'puzzle']
+            },
+            {
+                id: 'CE2',
+                title: 'Sentido numérico',
+                description: 'Conocer y aplicar el sistema de numeración decimal y las operaciones básicas.',
+                activities: ['lectura', 'bloques', 'representa', 'antpost', 'vecinos', 'camino1']
+            },
+            {
+                id: 'CE3',
+                title: 'Sentido de la medida',
+                description: 'Reconocer y utilizar unidades de medida para describir y comparar magnitudes.',
+                activities: ['reloj']
+            },
+            {
+                id: 'CE4',
+                title: 'Sentido espacial y geométrico',
+                description: 'Identificar formas, figuras y cuerpos geométricos en el entorno.',
+                activities: ['representa']
+            },
+            {
+                id: 'CE5',
+                title: 'Sentido algebraico y pensamiento computacional',
+                description: 'Identificar patrones y regularidades en secuencias numéricas.',
+                activities: ['puzzle', 'camino1']
+            },
+            {
+                id: 'CE6',
+                title: 'Comparación y orden',
+                description: 'Comparar y ordenar números naturales en situaciones cotidianas.',
+                activities: ['comparar', 'antpost', 'vecinos', 'camino1']
+            }
+        ];
+
+        // Mapeo de actividades a nombres legibles
+        this.activityNames = {
+            sumas: 'Sumas',
+            restas: 'Restas',
+            comparar: 'Compara',
+            antpost: 'Ant. y Post.',
+            lectura: 'Nº Escritos',
+            bloques: 'Bloques',
+            representa: 'Representa',
+            camino1: 'Camino',
+            batido: 'Batido',
+            vecinos: 'Vecinos',
+            reloj: 'Reloj',
+            puzzle: 'Puzzle'
         };
 
         this.init();
@@ -102,6 +160,14 @@ class MathApp {
         window.readProblemIA = () => this.lastIAStory && this.readText(this.lastIAStory);
         window.closeModalIA = () => this.elements.geminiModal.style.display = 'none';
         window.generateExercise = () => this.generateExercise();
+
+        // Currículo
+        window.openCurriculumModal = () => this.openCurriculumModal();
+        window.closeCurriculumModal = () => this.closeCurriculumModal();
+        window.toggleObjective = (id) => this.toggleObjective(id);
+        window.startActivityFromCurriculum = (activity) => this.startActivityFromCurriculum(activity);
+        window.setActiveVecino = (v) => this.setActiveVecino(v);
+        window.checkReloj = (opt) => this.checkReloj(opt);
     }
 
     startActivity(mode) {
@@ -113,6 +179,73 @@ class MathApp {
     goToMenu() {
         this.elements.viewGame.classList.remove('active');
         this.elements.viewMenu.classList.add('active');
+        this.closeCurriculumModal();
+    }
+
+    // === CURRÍCULO LOMLOE ===
+
+    openCurriculumModal() {
+        this.renderCurriculumObjectives();
+        this.elements.curriculumModal.style.display = 'flex';
+    }
+
+    closeCurriculumModal() {
+        if (this.elements.curriculumModal) {
+            this.elements.curriculumModal.style.display = 'none';
+        }
+    }
+
+    renderCurriculumObjectives() {
+        const container = this.elements.curriculumList;
+        if (!container) return;
+
+        let html = '';
+
+        this.curriculumObjectives.forEach(obj => {
+            html += `
+                <div class="curriculum-item" id="obj-${obj.id}">
+                    <div class="curriculum-header" onclick="toggleObjective('${obj.id}')">
+                        <span class="curriculum-id">${obj.id}</span>
+                        <span class="curriculum-title">${obj.title}</span>
+                        <span class="curriculum-toggle">▼</span>
+                    </div>
+                    <div class="curriculum-body" id="body-${obj.id}" style="display:none;">
+                        <p class="curriculum-description">${obj.description}</p>
+                        <p class="activities-label">Actividades relacionadas:</p>
+                        <div class="curriculum-activities">
+                            ${obj.activities.map(act => `
+                                <button class="curriculum-activity-btn" onclick="startActivityFromCurriculum('${act}')">
+                                    ${this.activityNames[act] || act}
+                                </button>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+
+        container.innerHTML = html;
+    }
+
+    toggleObjective(id) {
+        const body = document.getElementById(`body-${id}`);
+        const item = document.getElementById(`obj-${id}`);
+        const isOpen = body.style.display !== 'none';
+
+        // Cerrar todos
+        document.querySelectorAll('.curriculum-body').forEach(b => b.style.display = 'none');
+        document.querySelectorAll('.curriculum-item').forEach(i => i.classList.remove('open'));
+
+        // Abrir este si estaba cerrado
+        if (!isOpen) {
+            body.style.display = 'block';
+            item.classList.add('open');
+        }
+    }
+
+    startActivityFromCurriculum(activity) {
+        this.closeCurriculumModal();
+        this.startActivity(activity);
     }
 
     setGameMode(mode) {
