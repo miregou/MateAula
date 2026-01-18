@@ -186,17 +186,19 @@ class MathApp {
 
     openCurriculumModal() {
         this.renderCurriculumObjectives();
-        this.elements.curriculumModal.style.display = 'flex';
+        if (this.elements.inputs.curriculumModal) {
+            this.elements.inputs.curriculumModal.style.display = 'flex';
+        }
     }
 
     closeCurriculumModal() {
-        if (this.elements.curriculumModal) {
-            this.elements.curriculumModal.style.display = 'none';
+        if (this.elements.inputs.curriculumModal) {
+            this.elements.inputs.curriculumModal.style.display = 'none';
         }
     }
 
     renderCurriculumObjectives() {
-        const container = this.elements.curriculumList;
+        const container = this.elements.inputs.curriculumList;
         if (!container) return;
 
         let html = '';
