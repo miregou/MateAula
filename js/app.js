@@ -127,6 +127,15 @@ class MathApp {
         };
 
         this.init();
+
+        // Portal Bridge
+        window.addEventListener('message', (event) => {
+            if (event.data.type === 'INIT_USER') {
+                this.activeUser = event.data.user;
+                this.score = event.data.user.scores.mate || 0;
+                this.elements.score.innerText = this.score;
+            }
+        });
     }
 
     init() {
@@ -889,6 +898,15 @@ class MathApp {
             this.elements.instruction.innerHTML = "<span class='feedback-success'>¡EXCELENTE! ✨</span>";
             this.roundFinished = true;
             this.playSound('applause');
+
+            // Send to Portal
+            if (window.parent !== window) {
+                window.parent.postMessage({
+                    type: 'UPDATE_SCORE',
+                    app: 'mate',
+                    score: this.score
+                }, '*');
+            }
         } else {
             this.playSound('fail');
             this.elements.instruction.innerHTML = "<span class='feedback-error'>¡Inténtalo de nuevo! 💡</span>";
