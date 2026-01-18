@@ -185,21 +185,45 @@ class MathApp {
     // === CURRÍCULO LOMLOE ===
 
     openCurriculumModal() {
+        console.log("MathApp: openCurriculumModal called");
         this.renderCurriculumObjectives();
-        if (this.elements.inputs.curriculumModal) {
-            this.elements.inputs.curriculumModal.style.display = 'flex';
+
+        let modal = this.elements.inputs.curriculumModal;
+        if (!modal) {
+            console.log("MathApp: Modal not cached, searching DOM...");
+            modal = document.getElementById('curriculum-modal');
+            this.elements.inputs.curriculumModal = modal;
+        }
+
+        if (modal) {
+            console.log("MathApp: Displaying modal");
+            modal.style.display = 'flex';
+            modal.classList.add('active-modal');
+        } else {
+            console.error("MathApp: CRITICAL - Curriculum modal element NOT FOUND in DOM");
+            alert("Error: No se ha podido encontrar el modal del currículo.");
         }
     }
 
     closeCurriculumModal() {
-        if (this.elements.inputs.curriculumModal) {
-            this.elements.inputs.curriculumModal.style.display = 'none';
+        console.log("MathApp: closeCurriculumModal called");
+        let modal = this.elements.inputs.curriculumModal || document.getElementById('curriculum-modal');
+        if (modal) {
+            modal.style.display = 'none';
         }
     }
 
     renderCurriculumObjectives() {
-        const container = this.elements.inputs.curriculumList;
-        if (!container) return;
+        console.log("MathApp: Rendering objectives...");
+        let container = this.elements.inputs.curriculumList;
+        if (!container) {
+            container = document.getElementById('curriculum-list');
+            this.elements.inputs.curriculumList = container;
+        }
+        if (!container) {
+            console.error("MathApp: Curriculum list container NOT FOUND");
+            return;
+        }
 
         let html = '';
 
