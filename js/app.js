@@ -25,8 +25,16 @@ class MathApp {
         this.caminoNumbers = [];
         this.caminoGrid = [];
 
+        // Global Activity Configuration (Dice, Whiteboard, Visual Aids)
+        this.config = {
+            diceVisible: true,           // Show/Hide dice in activities
+            pizarraVisible: true,        // Show/Hide whiteboard
+            visualAidsEnabled: true,     // Show/Hide sticks/blocks representations
+            showSticks: true             // Specifically for sticks in number activities
+        };
+
         this.isRolling = { 1: false, 2: false };
-        this.showSticksIA = true;
+        this.showSticksIA = this.config.showSticks;
 
         this.elements = {
             viewMenu: document.getElementById('view-menu'),
@@ -249,7 +257,8 @@ class MathApp {
             title.innerText = "⚙️ Configuración del Puzzle";
             this.renderConfigPuzzle(options);
         } else {
-            modal.style.display = 'none';
+            title.innerText = "⚙️ Configuración de Actividad";
+            this.renderConfigGeneral(options);
         }
     }
 
@@ -312,6 +321,16 @@ class MathApp {
     }
 
     setConfig(key, val) {
+        // Handle global config keys
+        if (['diceVisible', 'pizarraVisible', 'visualAidsEnabled', 'showSticks'].includes(key)) {
+            this.config[key] = (val === 'true' || val === true);
+            if (key === 'showSticks') this.showSticksIA = this.config[key];
+            this.openConfigModal(); // Re-render
+            this.generateExercise(); // Re-render exercise
+            return;
+        }
+
+        // Handle activity-specific config
         const settings = this.gameMode.includes('camino') ? this.caminoSettings : this.puzzleSettings;
         if (key === 'rows' || key === 'cols' || key === 'step') val = parseInt(val);
         settings[key] = val;
