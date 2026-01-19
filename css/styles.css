@@ -196,12 +196,13 @@ body {
 
 .game-header {
     background: var(--secondary);
-    padding: 0.5rem 1rem;
+    padding: 0.25rem 1rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
     border-bottom: 3px solid var(--secondary-dark);
-    height: 60px;
+    height: 50px;
+    flex-shrink: 0;
 }
 
 /* Header Buttons & Badges */
@@ -257,12 +258,11 @@ body {
 .main-layout {
     display: grid;
     grid-template-columns: 1.2fr 0.8fr;
-    gap: 0.75rem;
-    padding: 0.75rem;
+    gap: 0.5rem;
+    padding: 0.5rem;
     flex: 1;
     overflow: hidden;
     min-height: 0;
-    /* Crucial for scrolling inside nested flex/grid */
 }
 
 .layout-fullscreen {
@@ -276,6 +276,8 @@ body {
     position: relative;
     display: flex;
     flex-direction: column;
+    min-height: 0;
+    /* Important for nested flex scroll/fit */
 }
 
 .panel-left {
@@ -285,799 +287,804 @@ body {
 }
 
 .instruction-pill {
-    margin: 1rem auto;
-    padding: 0.5rem 1.5rem;
-    border-radius: var(--radius-full);
-    font-weight: 700;
-    font-size: 0.9rem;
-    text-align: center;
-    box-shadow: var(--shadow-sm);
-}
-
-.instruction-neutral {
-    background: var(--white);
-    color: var(--primary);
-}
-
-.instruction-active {
-    background: var(--white);
-    color: var(--neutral-800);
-}
-
-.feedback-success {
-    color: var(--success);
-}
-
-.feedback-error {
-    color: var(--error);
-}
-
-#exercise-container {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    width: 100%;
-}
-
-/* Dice & Actions */
-#dice-section {
-    height: 90px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 1.5rem;
-    padding-bottom: 1rem;
-}
-
-.dice-slot {
-    width: 60px;
-    height: 60px;
-    background: var(--white);
-    border-radius: 12px;
-    border: 2px solid var(--neutral-100);
-    box-shadow: 0 4px 0 var(--neutral-100);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.dice-rolling {
-    animation: wiggle 0.2s infinite;
-}
-
-@keyframes wiggle {
-    0% {
-        transform: rotate(0deg);
+    .instruction-pill {
+        margin: 0.5rem auto;
+        padding: 0.4rem 1.2rem;
+        border-radius: var(--radius-full);
+        font-weight: 700;
+        font-size: 0.85rem;
+        text-align: center;
+        box-shadow: var(--shadow-sm);
+        flex-shrink: 0;
     }
 
-    25% {
-        transform: rotate(5deg);
+    .instruction-neutral {
+        background: var(--white);
+        color: var(--primary);
     }
 
-    75% {
-        transform: rotate(-5deg);
-    }
-}
-
-.dice-svg {
-    width: 45px;
-    height: 45px;
-}
-
-.dice-number {
-    font-size: 2rem;
-    font-weight: 800;
-    color: var(--primary-dark);
-}
-
-.op-symbol-small {
-    font-size: 2rem;
-    font-weight: 700;
-    color: var(--primary-light);
-}
-
-.btn-game-action {
-    background: var(--white);
-    border: 2px solid var(--primary);
-    color: var(--primary);
-    font-weight: 800;
-    padding: 0.75rem 2rem;
-    border-radius: var(--radius-md);
-    cursor: pointer;
-    box-shadow: 0 4px 0 var(--primary-light);
-    transition: 0.1s;
-}
-
-.btn-game-action:active {
-    transform: translateY(2px);
-    box-shadow: none;
-}
-
-
-/* --- PIZARRA PANEL --- */
-#pizarra-container {
-    flex: 2;
-    background: var(--white);
-    border: 3px dashed var(--neutral-300);
-    border-radius: var(--radius-md);
-    position: relative;
-    margin-bottom: 1rem;
-    overflow: hidden;
-}
-
-.pizarra-label {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    font-size: 0.7rem;
-    font-weight: 800;
-    color: var(--neutral-300);
-    pointer-events: none;
-}
-
-.btn-clear {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: var(--error);
-    color: white;
-    font-size: 0.7rem;
-    font-weight: 700;
-    border: none;
-    padding: 4px 8px;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-/* Keypad */
-#input-methods {
-    flex: 1;
-}
-
-.keypad-grid {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    grid-template-rows: repeat(2, 1fr);
-    gap: 6px;
-    height: 100%;
-}
-
-.keypad-btn {
-    background: var(--white);
-    border: 2px solid var(--primary-light);
-    border-radius: 12px;
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--neutral-800);
-    box-shadow: 0 4px 0 var(--primary-light);
-    cursor: pointer;
-}
-
-.keypad-btn:active {
-    transform: translateY(2px);
-    box-shadow: 0 2px 0 var(--primary-light);
-}
-
-.btn-backspace {
-    background: var(--error);
-    color: white;
-    border-color: var(--error);
-    box-shadow: 0 4px 0 #b91c1c;
-}
-
-.btn-ok {
-    background: var(--success);
-    color: white;
-    border-color: var(--success);
-    box-shadow: 0 4px 0 #15803d;
-}
-
-/* Symbols Keypad */
-.symbol-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1rem;
-    height: 100%;
-}
-
-/* --- GAME ELEMENTS --- */
-.number-box {
-    font-size: 3rem;
-    font-weight: 800;
-    line-height: 1;
-    min-width: 50px;
-    text-align: center;
-}
-
-.number-box-giant {
-    font-size: 4.5rem;
-    font-weight: 800;
-}
-
-.op-symbol {
-    font-size: 2.5rem;
-    color: var(--neutral-300);
-    font-weight: 700;
-    margin: 0 0.5rem;
-}
-
-.hundreds {
-    color: var(--success);
-}
-
-.tens {
-    color: var(--error);
-}
-
-.units {
-    color: var(--primary);
-}
-
-.label-guide {
-    font-size: 0.6rem;
-    opacity: 0.6;
-    font-weight: 800;
-    gap: 8px;
-    justify-content: center;
-}
-
-/* Sticks Visualization */
-.sticks-container {
-    display: flex;
-    gap: 3px;
-    align-items: flex-end;
-    min-height: 80px;
-    margin-top: 5px;
-    flex-wrap: nowrap;
-}
-
-.ten-bar {
-    width: 14px;
-    height: 150px;
-    /* 10 cubos de 14px + 10 gaps de 1px */
-    background: var(--error);
-    border: 1px solid #991b1b;
-    display: grid;
-    grid-template-rows: repeat(10, 1fr);
-}
-
-.bar-segment {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
-}
-
-.unit-stack {
-    display: flex;
-    flex-direction: column-reverse;
-    gap: 1px;
-}
-
-.unit-cube {
-    width: 14px;
-    height: 14px;
-    background: var(--primary);
-    border: 1px solid #1e3a8a;
-}
-
-
-/* Interactive Blocks (Representa) */
-.interactive-block {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 5px;
-    padding: 1rem;
-    border-radius: 12px;
-    border: 2px solid;
-}
-
-.tens-block {
-    background: #fef2f2;
-    border-color: #fee2e2;
-}
-
-.units-block {
-    background: #eff6ff;
-    border-color: #dbeafe;
-}
-
-.btn-adjust {
-    width: 32px;
-    height: 32px;
-    border-radius: 8px;
-    font-weight: bold;
-    cursor: pointer;
-    border: none;
-    box-shadow: 0 2px 0 rgba(0, 0, 0, 0.1);
-}
-
-.btn-plus {
-    background: var(--error);
-    color: white;
-}
-
-.btn-minus {
-    background: white;
-    color: var(--error);
-    border: 1px solid var(--error);
-}
-
-.btn-plus-u {
-    background: var(--primary);
-    color: white;
-}
-
-.btn-minus-u {
-    background: white;
-    color: var(--primary);
-    border: 1px solid var(--primary);
-}
-
-/* Camino Grid */
-.camino-wrapper {
-    width: 100%;
-    height: 100%;
-    padding: 10px;
-}
-
-.camino-grid {
-    display: grid;
-    grid-template-columns: repeat(10, 1fr);
-    gap: 6px;
-    width: 100%;
-    height: 100%;
-}
-
-.camino-btn {
-    background: white;
-    border: 1px solid var(--neutral-300);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.8rem;
-    font-weight: 700;
-    cursor: pointer;
-    box-shadow: 0 2px 0 var(--neutral-100);
-}
-
-.active-path {
-    background: var(--success);
-    color: white;
-    border-color: var(--success);
-    transform: scale(1.1);
-}
-
-.shake {
-    animation: shake 0.4s;
-    background: var(--error);
-}
-
-@keyframes shake {
-
-    0%,
-    100% {
-        transform: translateX(0);
+    .instruction-active {
+        background: var(--white);
+        color: var(--neutral-800);
     }
 
-    25% {
-        transform: translateX(-5px);
+    .feedback-success {
+        color: var(--success);
     }
 
-    75% {
-        transform: translateX(5px);
-    }
-}
-
-/* Input Fields (Lectura) */
-.input-box-field {
-    height: 60px;
-    min-width: 60px;
-    border-radius: 12px;
-    background: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
-    font-weight: 800;
-    cursor: pointer;
-    border: 3px solid transparent;
-}
-
-.tens-border {
-    border-color: var(--error);
-    color: var(--error);
-}
-
-.units-border {
-    border-color: var(--primary);
-    color: var(--primary);
-}
-
-.total-border {
-    border-color: var(--neutral-300);
-    color: var(--neutral-800);
-}
-
-.input-box-field.active {
-    border-width: 5px;
-    transform: scale(1.05);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-/* Central Card (Ant/Post) */
-.central-number-card {
-    width: 80px;
-    height: 80px;
-    background: var(--secondary);
-    border: 4px solid var(--secondary-light);
-    border-radius: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 2.5rem;
-    font-weight: 800;
-    color: var(--secondary-dark);
-    box-shadow: var(--shadow-float);
-}
-
-/* Animations */
-.animate-pop {
-    animation: pop 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
-}
-
-@keyframes pop {
-    from {
-        transform: scale(0.5);
-        opacity: 0;
+    .feedback-error {
+        color: var(--error);
     }
 
-    to {
-        transform: scale(1);
-        opacity: 1;
-    }
-}
-
-/* --- MODALS & OVERLAYS --- */
-.modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(5px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-    animation: fadeIn 0.3s ease;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
+    #exercise-container {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        width: 100%;
     }
 
-    to {
-        opacity: 1;
+    /* Dice & Actions */
+    #dice-section {
+        height: 70px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        padding-bottom: 0.5rem;
+        flex-shrink: 0;
     }
-}
 
-.modal-content {
-    background: var(--white);
-    border-radius: var(--radius-lg);
-    padding: 2rem;
-    width: 90%;
-    max-width: 600px;
-    max-height: 85vh;
-    overflow-y: auto;
-    box-shadow: var(--shadow-float);
-    position: relative;
-    border: 4px solid var(--secondary-light);
-}
+    .dice-slot {
+        width: 50px;
+        height: 50px;
+        background: var(--white);
+        border-radius: 12px;
+        border: 2px solid var(--neutral-100);
+        box-shadow: 0 4px 0 var(--neutral-100);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
 
-.curriculum-modal-content h3 {
-    margin-top: 0;
-    color: var(--secondary-dark);
-    text-align: center;
-    font-size: 1.5rem;
-}
+    .dice-rolling {
+        animation: wiggle 0.2s infinite;
+    }
 
-.curriculum-subtitle {
-    text-align: center;
-    font-weight: 700;
-    color: var(--neutral-500);
-    margin-top: -0.5rem;
-    margin-bottom: 2rem;
-}
+    @keyframes wiggle {
+        0% {
+            transform: rotate(0deg);
+        }
 
-.btn-close-modal {
-    display: block;
-    width: 100%;
-    margin-top: 1.5rem;
-    padding: 1rem;
-    background: var(--neutral-100);
-    border: none;
-    border-radius: var(--radius-md);
-    font-weight: 800;
-    color: var(--neutral-500);
-    cursor: pointer;
-    transition: 0.2s;
-}
+        25% {
+            transform: rotate(5deg);
+        }
 
-.btn-close-modal:hover {
-    background: var(--neutral-200);
-}
+        75% {
+            transform: rotate(-5deg);
+        }
+    }
 
-/* --- CURRICULUM ITEMS --- */
-.curriculum-objectives {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-}
+    .dice-svg {
+        width: 45px;
+        height: 45px;
+    }
 
-.curriculum-item {
-    border: 2px solid var(--neutral-100);
-    border-radius: var(--radius-md);
-    overflow: hidden;
-    transition: 0.3s;
-}
+    .dice-number {
+        font-size: 2rem;
+        font-weight: 800;
+        color: var(--primary-dark);
+    }
 
-.curriculum-item.open {
-    border-color: var(--secondary);
-    box-shadow: 0 4px 12px rgba(250, 204, 21, 0.1);
-}
+    .op-symbol-small {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--primary-light);
+    }
 
-.curriculum-header {
-    padding: 1rem;
-    background: var(--off-white);
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    cursor: pointer;
-    transition: 0.2s;
-}
+    .btn-game-action {
+        background: var(--white);
+        border: 2px solid var(--primary);
+        color: var(--primary);
+        font-weight: 800;
+        padding: 0.75rem 2rem;
+        border-radius: var(--radius-md);
+        cursor: pointer;
+        box-shadow: 0 4px 0 var(--primary-light);
+        transition: 0.1s;
+    }
 
-.curriculum-header:hover {
-    background: var(--neutral-100);
-}
+    .btn-game-action:active {
+        transform: translateY(2px);
+        box-shadow: none;
+    }
 
-.curriculum-id {
-    background: var(--secondary);
-    color: var(--secondary-dark);
-    font-weight: 800;
-    padding: 2px 8px;
-    border-radius: 4px;
-    font-size: 0.8rem;
-}
 
-.curriculum-title {
-    font-weight: 700;
-    flex: 1;
-    font-size: 0.95rem;
-}
+    /* --- PIZARRA PANEL --- */
+    #pizarra-container {
+        flex: 2;
+        background: var(--white);
+        border: 3px dashed var(--neutral-300);
+        border-radius: var(--radius-md);
+        position: relative;
+        margin-bottom: 0.5rem;
+        overflow: hidden;
+        min-height: 0;
+    }
 
-.curriculum-toggle {
-    font-size: 0.8rem;
-    color: var(--neutral-300);
-    transition: transform 0.3s;
-}
+    .pizarra-label {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        font-size: 0.7rem;
+        font-weight: 800;
+        color: var(--neutral-300);
+        pointer-events: none;
+    }
 
-.curriculum-item.open .curriculum-toggle {
-    transform: rotate(180deg);
-}
+    .btn-clear {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: var(--error);
+        color: white;
+        font-size: 0.7rem;
+        font-weight: 700;
+        border: none;
+        padding: 4px 8px;
+        border-radius: 4px;
+        cursor: pointer;
+    }
 
-.curriculum-body {
-    padding: 1rem;
-    background: white;
-    border-top: 1px solid var(--neutral-100);
-}
+    /* Keypad */
+    #input-methods {
+        flex: 1;
+        min-height: 0;
+    }
 
-.curriculum-description {
-    font-size: 0.85rem;
-    color: var(--neutral-500);
-    margin: 0 0 1rem 0;
-    line-height: 1.4;
-}
+    .keypad-grid {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        grid-template-rows: repeat(2, 1fr);
+        gap: 4px;
+        height: 100%;
+    }
 
-.activities-label {
-    font-size: 0.75rem;
-    font-weight: 800;
-    text-transform: uppercase;
-    color: var(--neutral-300);
-    margin-bottom: 0.5rem;
-}
+    .keypad-btn {
+        background: var(--white);
+        border: 2px solid var(--primary-light);
+        border-radius: 12px;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--neutral-800);
+        box-shadow: 0 4px 0 var(--primary-light);
+        cursor: pointer;
+    }
 
-.curriculum-activities {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-}
+    .keypad-btn:active {
+        transform: translateY(2px);
+        box-shadow: 0 2px 0 var(--primary-light);
+    }
 
-.curriculum-activity-btn {
-    background: var(--primary-light);
-    color: var(--primary-dark);
-    border: none;
-    padding: 0.5rem 0.75rem;
-    border-radius: 6px;
-    font-weight: 700;
-    font-size: 0.75rem;
-    cursor: pointer;
-    transition: 0.2s;
-}
+    .btn-backspace {
+        background: var(--error);
+        color: white;
+        border-color: var(--error);
+        box-shadow: 0 4px 0 #b91c1c;
+    }
 
-.curriculum-activity-btn:hover {
-    background: var(--primary);
-    color: white;
-}
+    .btn-ok {
+        background: var(--success);
+        color: white;
+        border-color: var(--success);
+        box-shadow: 0 4px 0 #15803d;
+    }
 
-/* --- CURRICULUM BUTTON IN MENU --- */
-.header-top {
-    display: flex;
-    justify-content: flex-end;
-    margin-bottom: 0.5rem;
-}
+    /* Symbols Keypad */
+    .symbol-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+        height: 100%;
+    }
 
-.btn-curriculum {
-    background: rgba(255, 255, 255, 0.3);
-    border: 2px solid rgba(255, 255, 255, 0.5);
-    color: var(--secondary-dark);
-    font-weight: 800;
-    padding: 0.4rem 1rem;
-    border-radius: var(--radius-full);
-    font-size: 0.75rem;
-    cursor: pointer;
-    transition: 0.2s;
-}
+    /* --- GAME ELEMENTS --- */
+    .number-box {
+        font-size: 3rem;
+        font-weight: 800;
+        line-height: 1;
+        min-width: 50px;
+        text-align: center;
+    }
 
-.btn-curriculum:hover {
-    background: white;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
+    .number-box-giant {
+        font-size: 4.5rem;
+        font-weight: 800;
+    }
 
-/* Specific style for curriculum button in game view */
-.btn-curriculum-game {
-    background: var(--secondary-light) !important;
-    border-color: var(--secondary) !important;
-    color: var(--secondary-dark) !important;
-    font-weight: 800 !important;
-}
+    .op-symbol {
+        font-size: 2.5rem;
+        color: var(--neutral-300);
+        font-weight: 700;
+        margin: 0 0.5rem;
+    }
 
-.btn-curriculum-game:hover {
-    background: var(--secondary) !important;
-    color: white !important;
-}
+    .hundreds {
+        color: var(--success);
+    }
 
-.offline-mode {
-    filter: grayscale(1);
-    opacity: 0.5;
-    cursor: not-allowed !important;
-    pointer-events: none;
-}
+    .tens {
+        color: var(--error);
+    }
 
-/* --- CONFIG MODAL (Camino/Puzzle) --- */
-.config-group {
-    background: var(--off-white);
-    padding: 1rem;
-    border-radius: var(--radius-md);
-    margin-bottom: 1rem;
-    border: 2px solid var(--neutral-100);
-}
+    .units {
+        color: var(--primary);
+    }
 
-.config-group-title {
-    font-size: 0.85rem;
-    font-weight: 800;
-    color: var(--primary-dark);
-    margin-bottom: 0.75rem;
-    text-transform: uppercase;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
+    .label-guide {
+        font-size: 0.6rem;
+        opacity: 0.6;
+        font-weight: 800;
+        gap: 8px;
+        justify-content: center;
+    }
 
-.config-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-}
+    /* Sticks Visualization */
+    .sticks-container {
+        display: flex;
+        gap: 3px;
+        align-items: flex-end;
+        min-height: 80px;
+        margin-top: 5px;
+        flex-wrap: nowrap;
+    }
 
-.config-btn {
-    flex: 1;
-    min-width: 80px;
-    padding: 0.6rem 0.4rem;
-    background: white;
-    border: 2px solid var(--neutral-100);
-    border-radius: var(--radius-sm);
-    font-size: 0.8rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.2s;
-    text-align: center;
-}
+    .ten-bar {
+        width: 14px;
+        height: 150px;
+        /* 10 cubos de 14px + 10 gaps de 1px */
+        background: var(--error);
+        border: 1px solid #991b1b;
+        display: grid;
+        grid-template-rows: repeat(10, 1fr);
+    }
 
-.config-btn:hover {
-    border-color: var(--primary-light);
-}
+    .bar-segment {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+    }
 
-.config-btn.active {
-    background: var(--primary);
-    color: white;
-    border-color: var(--primary-dark);
-    box-shadow: 0 4px 0 var(--primary-dark);
-    transform: translateY(-2px);
-}
+    .unit-stack {
+        display: flex;
+        flex-direction: column-reverse;
+        gap: 1px;
+    }
 
-.config-input-row {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-}
+    .unit-cube {
+        width: 14px;
+        height: 14px;
+        background: var(--primary);
+        border: 1px solid #1e3a8a;
+    }
 
-.config-number-input {
-    width: 60px;
-    padding: 0.5rem;
-    border: 2px solid var(--neutral-100);
-    border-radius: var(--radius-sm);
-    font-weight: 700;
-    text-align: center;
-}
 
-/* Ajustes dinámicos para el camino */
-.camino-wrapper {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 10px;
-}
+    /* Interactive Blocks (Representa) */
+    .interactive-block {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 5px;
+        padding: 1rem;
+        border-radius: 12px;
+        border: 2px solid;
+    }
 
-.camino-grid {
-    display: grid;
-    gap: 8px;
-    width: 100%;
-    max-width: 800px;
-    margin: 0 auto;
-}
+    .tens-block {
+        background: #fef2f2;
+        border-color: #fee2e2;
+    }
 
-.camino-btn {
-    aspect-ratio: 1;
-    min-width: 40px;
-    border-radius: 50%;
-    border: 3px solid var(--neutral-100);
-    background: white;
-    font-weight: 800;
-    font-size: 1.2rem;
-    cursor: pointer;
-    box-shadow: 0 4px 0 var(--neutral-100);
-    transition: all 0.1s;
-}
+    .units-block {
+        background: #eff6ff;
+        border-color: #dbeafe;
+    }
 
-.camino-btn:active {
-    transform: translateY(2px);
-    box-shadow: 0 2px 0 var(--neutral-100);
-}
+    .btn-adjust {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        font-weight: bold;
+        cursor: pointer;
+        border: none;
+        box-shadow: 0 2px 0 rgba(0, 0, 0, 0.1);
+    }
 
-.camino-btn.active-path {
-    background: var(--success);
-    color: white;
-    border-color: #15803d;
-    box-shadow: 0 4px 0 #15803d;
-}
+    .btn-plus {
+        background: var(--error);
+        color: white;
+    }
 
-.camino-btn.target-path {
-    background: var(--secondary-light);
-    border-color: var(--secondary);
-    box-shadow: 0 4px 0 var(--secondary);
-}
+    .btn-minus {
+        background: white;
+        color: var(--error);
+        border: 1px solid var(--error);
+    }
 
-.camino-info {
-    margin-top: 1rem;
-    background: white;
-    padding: 0.5rem 1.5rem;
-    border-radius: var(--radius-full);
-    border: 2px solid var(--primary-light);
-    font-weight: 800;
-}
+    .btn-plus-u {
+        background: var(--primary);
+        color: white;
+    }
+
+    .btn-minus-u {
+        background: white;
+        color: var(--primary);
+        border: 1px solid var(--primary);
+    }
+
+    /* Camino Grid */
+    .camino-wrapper {
+        width: 100%;
+        height: 100%;
+        padding: 10px;
+    }
+
+    .camino-grid {
+        display: grid;
+        grid-template-columns: repeat(10, 1fr);
+        gap: 6px;
+        width: 100%;
+        height: 100%;
+    }
+
+    .camino-btn {
+        background: white;
+        border: 1px solid var(--neutral-300);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+        font-weight: 700;
+        cursor: pointer;
+        box-shadow: 0 2px 0 var(--neutral-100);
+    }
+
+    .active-path {
+        background: var(--success);
+        color: white;
+        border-color: var(--success);
+        transform: scale(1.1);
+    }
+
+    .shake {
+        animation: shake 0.4s;
+        background: var(--error);
+    }
+
+    @keyframes shake {
+
+        0%,
+        100% {
+            transform: translateX(0);
+        }
+
+        25% {
+            transform: translateX(-5px);
+        }
+
+        75% {
+            transform: translateX(5px);
+        }
+    }
+
+    /* Input Fields (Lectura) */
+    .input-box-field {
+        height: 60px;
+        min-width: 60px;
+        border-radius: 12px;
+        background: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        font-weight: 800;
+        cursor: pointer;
+        border: 3px solid transparent;
+    }
+
+    .tens-border {
+        border-color: var(--error);
+        color: var(--error);
+    }
+
+    .units-border {
+        border-color: var(--primary);
+        color: var(--primary);
+    }
+
+    .total-border {
+        border-color: var(--neutral-300);
+        color: var(--neutral-800);
+    }
+
+    .input-box-field.active {
+        border-width: 5px;
+        transform: scale(1.05);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Central Card (Ant/Post) */
+    .central-number-card {
+        width: 80px;
+        height: 80px;
+        background: var(--secondary);
+        border: 4px solid var(--secondary-light);
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: var(--secondary-dark);
+        box-shadow: var(--shadow-float);
+    }
+
+    /* Animations */
+    .animate-pop {
+        animation: pop 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+    }
+
+    @keyframes pop {
+        from {
+            transform: scale(0.5);
+            opacity: 0;
+        }
+
+        to {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+
+    /* --- MODALS & OVERLAYS --- */
+    .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(5px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
+    }
+
+    .modal-content {
+        background: var(--white);
+        border-radius: var(--radius-lg);
+        padding: 2rem;
+        width: 90%;
+        max-width: 600px;
+        max-height: 85vh;
+        overflow-y: auto;
+        box-shadow: var(--shadow-float);
+        position: relative;
+        border: 4px solid var(--secondary-light);
+    }
+
+    .curriculum-modal-content h3 {
+        margin-top: 0;
+        color: var(--secondary-dark);
+        text-align: center;
+        font-size: 1.5rem;
+    }
+
+    .curriculum-subtitle {
+        text-align: center;
+        font-weight: 700;
+        color: var(--neutral-500);
+        margin-top: -0.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .btn-close-modal {
+        display: block;
+        width: 100%;
+        margin-top: 1.5rem;
+        padding: 1rem;
+        background: var(--neutral-100);
+        border: none;
+        border-radius: var(--radius-md);
+        font-weight: 800;
+        color: var(--neutral-500);
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    .btn-close-modal:hover {
+        background: var(--neutral-200);
+    }
+
+    /* --- CURRICULUM ITEMS --- */
+    .curriculum-objectives {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .curriculum-item {
+        border: 2px solid var(--neutral-100);
+        border-radius: var(--radius-md);
+        overflow: hidden;
+        transition: 0.3s;
+    }
+
+    .curriculum-item.open {
+        border-color: var(--secondary);
+        box-shadow: 0 4px 12px rgba(250, 204, 21, 0.1);
+    }
+
+    .curriculum-header {
+        padding: 1rem;
+        background: var(--off-white);
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    .curriculum-header:hover {
+        background: var(--neutral-100);
+    }
+
+    .curriculum-id {
+        background: var(--secondary);
+        color: var(--secondary-dark);
+        font-weight: 800;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 0.8rem;
+    }
+
+    .curriculum-title {
+        font-weight: 700;
+        flex: 1;
+        font-size: 0.95rem;
+    }
+
+    .curriculum-toggle {
+        font-size: 0.8rem;
+        color: var(--neutral-300);
+        transition: transform 0.3s;
+    }
+
+    .curriculum-item.open .curriculum-toggle {
+        transform: rotate(180deg);
+    }
+
+    .curriculum-body {
+        padding: 1rem;
+        background: white;
+        border-top: 1px solid var(--neutral-100);
+    }
+
+    .curriculum-description {
+        font-size: 0.85rem;
+        color: var(--neutral-500);
+        margin: 0 0 1rem 0;
+        line-height: 1.4;
+    }
+
+    .activities-label {
+        font-size: 0.75rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        color: var(--neutral-300);
+        margin-bottom: 0.5rem;
+    }
+
+    .curriculum-activities {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .curriculum-activity-btn {
+        background: var(--primary-light);
+        color: var(--primary-dark);
+        border: none;
+        padding: 0.5rem 0.75rem;
+        border-radius: 6px;
+        font-weight: 700;
+        font-size: 0.75rem;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    .curriculum-activity-btn:hover {
+        background: var(--primary);
+        color: white;
+    }
+
+    /* --- CURRICULUM BUTTON IN MENU --- */
+    .header-top {
+        display: flex;
+        justify-content: flex-end;
+        margin-bottom: 0.5rem;
+    }
+
+    .btn-curriculum {
+        background: rgba(255, 255, 255, 0.3);
+        border: 2px solid rgba(255, 255, 255, 0.5);
+        color: var(--secondary-dark);
+        font-weight: 800;
+        padding: 0.4rem 1rem;
+        border-radius: var(--radius-full);
+        font-size: 0.75rem;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    .btn-curriculum:hover {
+        background: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Specific style for curriculum button in game view */
+    .btn-curriculum-game {
+        background: var(--secondary-light) !important;
+        border-color: var(--secondary) !important;
+        color: var(--secondary-dark) !important;
+        font-weight: 800 !important;
+    }
+
+    .btn-curriculum-game:hover {
+        background: var(--secondary) !important;
+        color: white !important;
+    }
+
+    .offline-mode {
+        filter: grayscale(1);
+        opacity: 0.5;
+        cursor: not-allowed !important;
+        pointer-events: none;
+    }
+
+    /* --- CONFIG MODAL (Camino/Puzzle) --- */
+    .config-group {
+        background: var(--off-white);
+        padding: 1rem;
+        border-radius: var(--radius-md);
+        margin-bottom: 1rem;
+        border: 2px solid var(--neutral-100);
+    }
+
+    .config-group-title {
+        font-size: 0.85rem;
+        font-weight: 800;
+        color: var(--primary-dark);
+        margin-bottom: 0.75rem;
+        text-transform: uppercase;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .config-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .config-btn {
+        flex: 1;
+        min-width: 80px;
+        padding: 0.6rem 0.4rem;
+        background: white;
+        border: 2px solid var(--neutral-100);
+        border-radius: var(--radius-sm);
+        font-size: 0.8rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-align: center;
+    }
+
+    .config-btn:hover {
+        border-color: var(--primary-light);
+    }
+
+    .config-btn.active {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary-dark);
+        box-shadow: 0 4px 0 var(--primary-dark);
+        transform: translateY(-2px);
+    }
+
+    .config-input-row {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .config-number-input {
+        width: 60px;
+        padding: 0.5rem;
+        border: 2px solid var(--neutral-100);
+        border-radius: var(--radius-sm);
+        font-weight: 700;
+        text-align: center;
+    }
+
+    /* Ajustes dinámicos para el camino */
+    .camino-wrapper {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 10px;
+    }
+
+    .camino-grid {
+        display: grid;
+        gap: 8px;
+        width: 100%;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .camino-btn {
+        aspect-ratio: 1;
+        min-width: 40px;
+        border-radius: 50%;
+        border: 3px solid var(--neutral-100);
+        background: white;
+        font-weight: 800;
+        font-size: 1.2rem;
+        cursor: pointer;
+        box-shadow: 0 4px 0 var(--neutral-100);
+        transition: all 0.1s;
+    }
+
+    .camino-btn:active {
+        transform: translateY(2px);
+        box-shadow: 0 2px 0 var(--neutral-100);
+    }
+
+    .camino-btn.active-path {
+        background: var(--success);
+        color: white;
+        border-color: #15803d;
+        box-shadow: 0 4px 0 #15803d;
+    }
+
+    .camino-btn.target-path {
+        background: var(--secondary-light);
+        border-color: var(--secondary);
+        box-shadow: 0 4px 0 var(--secondary);
+    }
+
+    .camino-info {
+        margin-top: 1rem;
+        background: white;
+        padding: 0.5rem 1.5rem;
+        border-radius: var(--radius-full);
+        border: 2px solid var(--primary-light);
+        font-weight: 800;
+    }

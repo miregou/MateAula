@@ -399,7 +399,7 @@ class MathApp {
     }
 
     getSticks(num, color) {
-        let s = `<div class="sticks-container">`;
+        let s = `<div class="sticks-container" style="min-height:50px; margin-top:0;">`;
         const d = Math.floor(num / 10), u = num % 10;
         for (let i = 0; i < d; i++) s += `<div class="ten-bar flex-shrink-0">${'<div class="bar-segment"></div>'.repeat(10)}</div>`;
         if (u > 0 || (d > 0 && u === 0)) {
