@@ -337,6 +337,33 @@ class MathApp {
         this.openConfigModal(); // Re-render
     }
 
+    renderConfigGeneral(container) {
+        const c = this.config;
+        container.innerHTML = `
+            <div class="config-group">
+                <div class="config-group-title">🎲 Dados</div>
+                <div class="config-row">
+                    <button onclick="setConfig('diceVisible', true)" class="config-btn ${c.diceVisible ? 'active' : ''}">Mostrar Dados</button>
+                    <button onclick="setConfig('diceVisible', false)" class="config-btn ${!c.diceVisible ? 'active' : ''}">Ocultar Dados</button>
+                </div>
+            </div>
+            <div class="config-group">
+                <div class="config-group-title">🖍️ Pizarra</div>
+                <div class="config-row">
+                    <button onclick="setConfig('pizarraVisible', true)" class="config-btn ${c.pizarraVisible ? 'active' : ''}">Mostrar Pizarra</button>
+                    <button onclick="setConfig('pizarraVisible', false)" class="config-btn ${!c.pizarraVisible ? 'active' : ''}">Ocultar Pizarra</button>
+                </div>
+            </div>
+            <div class="config-group">
+                <div class="config-group-title">📊 Apoyos Visuales (Palitos/Bloques)</div>
+                <div class="config-row">
+                    <button onclick="setConfig('visualAidsEnabled', true)" class="config-btn ${c.visualAidsEnabled ? 'active' : ''}">Mostrar Apoyos</button>
+                    <button onclick="setConfig('visualAidsEnabled', false)" class="config-btn ${!c.visualAidsEnabled ? 'active' : ''}">Ocultar Apoyos</button>
+                </div>
+            </div>
+        `;
+    }
+
     closeConfigModal() {
         document.getElementById('config-modal').style.display = 'none';
         this.generateExercise();
