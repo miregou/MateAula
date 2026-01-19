@@ -1,12 +1,10 @@
 /**
- * MateAula Pro - Application Logic v8.1
- * Optimized for Cross-Browser Stability & Horizontal Layouts
+ * MateAula Pro - Application Logic v8.2
+ * Optimized for Cross-Browser Stability & Accessibility
  */
 
 class MathApp {
     constructor() {
-        // State
-        this.apiKey = ""; // API Key for Gemini (Optional)
         this.score = 0;
         this.currentDifficulty = 1;
         this.gameMode = 'sumas';
@@ -14,7 +12,6 @@ class MathApp {
         this.val2 = null;
         this.roundFinished = false;
 
-        // Input States
         this.userInputValue = "";
         this.userSelectedSymbol = null;
         this.lectInputs = { pures: "", units: "", total: "" };
@@ -23,26 +20,14 @@ class MathApp {
         this.antPostInputs = { before: "", after: "" };
         this.activeAntPost = 'before';
 
-        // Camino State
-        this.currentPathNum = 1;
-        this.caminoStart = 1;
-        this.caminoEnd = 100;
-        this.caminoDirection = 1;
-        this.caminoSettings = {
-            rows: 3,
-            cols: 5,
-            displayMode: 'ordered',  // 'ordered', 'snake', 'path', 'random'
-            step: 1  // 1, 2, or 5
-        };
+        this.caminoSettings = { rows: 4, cols: 5, mode: 'ordered', step: 1, direction: 'forward' };
+        this.puzzleSettings = { mode: 'ordered', step: 1 };
         this.caminoNumbers = [];
-        this.caminoGrid = [];  // Para guardar posiciones
+        this.caminoGrid = [];
 
-        // UI State
         this.isRolling = { 1: false, 2: false };
         this.showSticksIA = true;
-        this.lastIAStory = "";
 
-        // Cache DOM elements
         this.elements = {
             viewMenu: document.getElementById('view-menu'),
             viewGame: document.getElementById('view-game'),
@@ -54,9 +39,6 @@ class MathApp {
             toggleSticks: document.getElementById('toggle-sticks'),
             canvas: document.getElementById('canvas-pizarra'),
             ctx: document.getElementById('canvas-pizarra') ? document.getElementById('canvas-pizarra').getContext('2d') : null,
-            geminiModal: document.getElementById('gemini-modal'),
-            geminiContent: document.getElementById('gemini-content'),
-            iaResponseText: document.getElementById('ia-response-text'),
             inputs: {
                 numKeypad: document.getElementById('num-keypad'),
                 symbolKeypad: document.getElementById('symbol-keypad'),
@@ -64,75 +46,21 @@ class MathApp {
                 gameContainer: document.getElementById('game-container'),
                 diff1: document.getElementById('diff-1'),
                 diff2: document.getElementById('diff-2'),
-                diff3: document.getElementById('diff-3'),
-                curriculumList: document.getElementById('curriculum-list'),
-                curriculumModal: document.getElementById('curriculum-modal')
+                diff3: document.getElementById('diff-3')
             }
         };
 
-        // Currículo LOMLOE - 1º Primaria - Matemáticas
-        this.curriculumObjectives = [
-            {
-                id: 'CE1',
-                title: 'Resolución de problemas',
-                description: 'Interpretar y resolver problemas de la vida cotidiana utilizando estrategias matemáticas.',
-                activities: ['sumas', 'restas', 'batido', 'puzzle']
-            },
-            {
-                id: 'CE2',
-                title: 'Sentido numérico',
-                description: 'Conocer y aplicar el sistema de numeración decimal y las operaciones básicas.',
-                activities: ['lectura', 'bloques', 'representa', 'antpost', 'vecinos', 'camino1']
-            },
-            {
-                id: 'CE3',
-                title: 'Sentido de la medida',
-                description: 'Reconocer y utilizar unidades de medida para describir y comparar magnitudes.',
-                activities: ['reloj']
-            },
-            {
-                id: 'CE4',
-                title: 'Sentido espacial y geométrico',
-                description: 'Identificar formas, figuras y cuerpos geométricos en el entorno.',
-                activities: ['representa']
-            },
-            {
-                id: 'CE5',
-                title: 'Sentido algebraico y pensamiento computacional',
-                description: 'Identificar patrones y regularidades en secuencias numéricas.',
-                activities: ['puzzle', 'camino1']
-            },
-            {
-                id: 'CE6',
-                title: 'Comparación y orden',
-                description: 'Comparar y ordenar números naturales en situaciones cotidianas.',
-                activities: ['comparar', 'antpost', 'vecinos', 'camino1']
-            }
-        ];
-
-        // Mapeo de actividades a nombres legibles
         this.activityNames = {
-            sumas: 'Sumas',
-            restas: 'Restas',
-            comparar: 'Compara',
-            antpost: 'Ant. y Post.',
-            lectura: 'Nº Escritos',
-            bloques: 'Bloques',
-            representa: 'Representa',
-            camino1: 'Camino',
-            batido: 'Batido',
-            vecinos: 'Vecinos',
-            reloj: 'Reloj',
-            puzzle: 'Puzzle'
+            sumas: 'Sumas', restas: 'Restas', comparar: 'Compara', antpost: 'Ant. y Post.',
+            lectura: 'Nº Escritos', bloques: 'Bloques', representa: 'Representa',
+            camino1: 'Camino', batido: 'Batido', vecinos: 'Vecinos', reloj: 'Reloj', puzzle: 'Puzzle'
         };
 
         this.init();
 
-        // Portal Bridge
         window.addEventListener('message', (event) => {
             if (event.data.type === 'INIT_USER') {
-                this.activeUser = event.data.user;
-                this.score = event.data.user.scores.mate || 0;
+                this.score = event.data.user.points || 0;
                 this.elements.score.innerText = this.score;
             }
         });
@@ -140,15 +68,11 @@ class MathApp {
 
     init() {
         this.bindEvents();
-        setTimeout(() => {
-            this.initPizarra();
-            this.resizeCanvas();
-        }, 100);
+        setTimeout(() => { if (this.elements.canvas) this.initPizarra(); }, 100);
         window.addEventListener('resize', () => this.resizeCanvas());
     }
 
     bindEvents() {
-        // Expose methods for HTML interaction
         window.startActivity = (mode) => this.startActivity(mode);
         window.goToMenu = () => this.goToMenu();
         window.setDifficulty = (d) => this.setDifficulty(d);
@@ -156,161 +80,45 @@ class MathApp {
         window.clearCanvas = () => this.clearCanvas();
         window.pressNum = (n) => this.pressNum(n);
         window.backspace = () => this.backspace();
-        window.checkAnswerIA = () => this.checkAnswer();
-        window.checkComparisonIA = (s) => this.checkComparison(s);
+        window.checkAnswer = () => this.checkAnswer();
+        window.checkAnswerIA = () => this.checkAnswer(); // Fix for HTML calling checkAnswerIA
+        window.checkComparison = (s) => this.checkComparison(s);
         window.handleDice = (id) => this.handleDice(id);
         window.clickCamino = (n, el) => this.clickCamino(n, el);
         window.adjustBlock = (t, a) => this.adjustBlock(t, a);
-
-        // AI methods
-        window.readInstructionIA = () => this.readText(this.elements.instruction.innerText);
-        window.toggleSticksIA = () => this.toggleSticks();
-        window.getStoryIA = () => this.getStory();
-        window.readProblemIA = () => this.lastIAStory && this.readText(this.lastIAStory);
-        window.closeModalIA = () => this.elements.geminiModal.style.display = 'none';
-        window.generateExercise = () => this.generateExercise();
-
-        // Check offline status for IA features
-        this.checkOnlineStatus();
-        window.addEventListener('online', () => this.checkOnlineStatus());
-        window.addEventListener('offline', () => this.checkOnlineStatus());
-
-        // Currículo
-        window.openCurriculumModal = () => this.openCurriculumModal();
-        window.closeCurriculumModal = () => this.closeCurriculumModal();
-        window.toggleObjective = (id) => this.toggleObjective(id);
-        window.startActivityFromCurriculum = (activity) => this.startActivityFromCurriculum(activity);
         window.setActiveVecino = (v) => this.setActiveVecino(v);
         window.checkReloj = (opt) => this.checkReloj(opt);
-    }
-
-    checkOnlineStatus() {
-        const isOnline = navigator.onLine;
-        const iaBtn = document.querySelector('.gemini-btn');
-        if (iaBtn) {
-            if (isOnline) {
-                iaBtn.classList.remove('offline-mode');
-                iaBtn.title = "Requiere Internet";
-            } else {
-                iaBtn.classList.add('offline-mode');
-                iaBtn.title = "IA Deshabilitada (Sin Internet)";
-            }
-        }
+        window.generateExercise = () => this.generateExercise();
+        window.toggleSticksIA = () => this.toggleSticksIA();
+        window.setActiveField = (f) => this.setActiveField(f);
+        window.setActiveAntPost = (p) => this.setActiveAntPost(p);
+        window.toggleBatidoIngredient = (num) => this.toggleBatidoIngredient(num);
+        window.openConfigModal = () => this.openConfigModal();
+        window.closeConfigModal = () => this.closeConfigModal();
+        window.setConfig = (key, val) => this.setConfig(key, val);
     }
 
     startActivity(mode) {
         this.elements.viewMenu.classList.remove('active');
         this.elements.viewGame.classList.add('active');
+        // Ensure canvas is sized correctly now that it is visible
+        requestAnimationFrame(() => this.resizeCanvas());
         this.setGameMode(mode);
     }
 
     goToMenu() {
         this.elements.viewGame.classList.remove('active');
         this.elements.viewMenu.classList.add('active');
-        this.closeCurriculumModal();
-    }
-
-    // === CURRÍCULO LOMLOE ===
-
-    openCurriculumModal() {
-        console.log("MathApp: openCurriculumModal called");
-        this.renderCurriculumObjectives();
-
-        let modal = this.elements.inputs.curriculumModal;
-        if (!modal) {
-            console.log("MathApp: Modal not cached, searching DOM...");
-            modal = document.getElementById('curriculum-modal');
-            this.elements.inputs.curriculumModal = modal;
-        }
-
-        if (modal) {
-            console.log("MathApp: Displaying modal");
-            modal.style.display = 'flex';
-            modal.classList.add('active-modal');
-        } else {
-            console.error("MathApp: CRITICAL - Curriculum modal element NOT FOUND in DOM");
-            alert("Error: No se ha podido encontrar el modal del currículo.");
-        }
-    }
-
-    closeCurriculumModal() {
-        console.log("MathApp: closeCurriculumModal called");
-        let modal = this.elements.inputs.curriculumModal || document.getElementById('curriculum-modal');
-        if (modal) {
-            modal.style.display = 'none';
-        }
-    }
-
-    renderCurriculumObjectives() {
-        console.log("MathApp: Rendering objectives...");
-        let container = this.elements.inputs.curriculumList;
-        if (!container) {
-            container = document.getElementById('curriculum-list');
-            this.elements.inputs.curriculumList = container;
-        }
-        if (!container) {
-            console.error("MathApp: Curriculum list container NOT FOUND");
-            return;
-        }
-
-        let html = '';
-
-        this.curriculumObjectives.forEach(obj => {
-            html += `
-                <div class="curriculum-item" id="obj-${obj.id}">
-                    <div class="curriculum-header" onclick="toggleObjective('${obj.id}')">
-                        <span class="curriculum-id">${obj.id}</span>
-                        <span class="curriculum-title">${obj.title}</span>
-                        <span class="curriculum-toggle">▼</span>
-                    </div>
-                    <div class="curriculum-body" id="body-${obj.id}" style="display:none;">
-                        <p class="curriculum-description">${obj.description}</p>
-                        <p class="activities-label">Actividades relacionadas:</p>
-                        <div class="curriculum-activities">
-                            ${obj.activities.map(act => `
-                                <button class="curriculum-activity-btn" onclick="startActivityFromCurriculum('${act}')">
-                                    ${this.activityNames[act] || act}
-                                </button>
-                            `).join('')}
-                        </div>
-                    </div>
-                </div>
-            `;
-        });
-
-        container.innerHTML = html;
-    }
-
-    toggleObjective(id) {
-        const body = document.getElementById(`body-${id}`);
-        const item = document.getElementById(`obj-${id}`);
-        const isOpen = body.style.display !== 'none';
-
-        // Cerrar todos
-        document.querySelectorAll('.curriculum-body').forEach(b => b.style.display = 'none');
-        document.querySelectorAll('.curriculum-item').forEach(i => i.classList.remove('open'));
-
-        // Abrir este si estaba cerrado
-        if (!isOpen) {
-            body.style.display = 'block';
-            item.classList.add('open');
-        }
-    }
-
-    startActivityFromCurriculum(activity) {
-        this.closeCurriculumModal();
-        this.startActivity(activity);
     }
 
     setGameMode(mode) {
         this.gameMode = mode;
         const els = this.elements;
         const isCamino = mode.includes('camino');
-
-        els.toggleSticks.classList.add('hidden');
+        // Botón de apoyo siempre visible (activado por petición del usuario)
+        // els.toggleSticks.classList.add('hidden');
         document.getElementById('page-badge').classList.add('hidden');
 
-        // Layout adjustments
         if (isCamino) {
             els.inputs.gameContainer.classList.add('layout-fullscreen');
             els.inputs.rightPanel.classList.add('hidden');
@@ -321,66 +129,55 @@ class MathApp {
             els.inputs.rightPanel.classList.remove('hidden');
             els.gameTitle.innerText = mode.toUpperCase();
 
+            // toggleFocusMode logic inline or helper
+            const isFocus = ['bloques', 'representa'].includes(mode);
+            const pizarra = document.getElementById('pizarra-container');
+            const gameCont = document.getElementById('game-container');
+            if (isFocus) {
+                pizarra.style.display = 'none';
+                gameCont.style.gridTemplateColumns = '1fr 300px';
+                // Make left-panel huge
+            } else {
+                pizarra.style.display = 'block'; // or flex/initial depending on CSS, block is safe usually for div
+                gameCont.style.gridTemplateColumns = ''; // Reset to CSS class
+            }
+
             if (mode === 'comparar') {
                 els.inputs.numKeypad.classList.add('hidden');
                 els.inputs.symbolKeypad.classList.remove('hidden');
-                document.getElementById('btn-lt').innerHTML = this.getComparisonSVG('lt');
-                document.getElementById('btn-gt').innerHTML = this.getComparisonSVG('gt');
             } else {
                 els.inputs.numKeypad.classList.remove('hidden');
                 els.inputs.symbolKeypad.classList.add('hidden');
             }
-
-            if (['sumas', 'restas'].includes(mode) && this.currentDifficulty === 2) {
+            if (mode === 'sumas' || mode === 'restas') {
                 els.toggleSticks.classList.remove('hidden');
-            }
-
-            if (['lectura', 'bloques', 'representa', 'antpost', 'batido', 'vecinos', 'reloj', 'puzzle'].includes(mode)) {
-                els.diceSection.innerHTML = `<button onclick="generateExercise()" class="btn-game-action">Nuevo Reto 🎲</button>`;
-            } else {
-                const opSymbol = mode === 'sumas' ? '＋' : (mode === 'restas' ? '－' : '🐊');
+                els.toggleSticks.innerText = `APOYO: ${this.showSticksIA ? 'ON' : 'OFF'}`;
+                els.toggleSticks.classList.toggle('btn-active', this.showSticksIA);
                 els.diceSection.innerHTML = `
-                    <div id="dice-slot-1" onclick="handleDice(1)" class="dice-slot"><span class="text-2xl">❓</span></div>
-                    <div class="op-symbol-small">${opSymbol}</div>
-                    <div id="dice-slot-2" onclick="handleDice(2)" class="dice-slot"><span class="text-2xl">❓</span></div>
-                    <button id="btn-ia-story" onclick="getStoryIA()" class="gemini-btn" style="display:none">✨ CUENTO</button>
+                    <div id="dice-slot-1" onclick="handleDice(1)" class="dice-slot">❓</div>
+                    <div class="op-symbol-small">${mode === 'sumas' ? '＋' : '－'}</div>
+                    <div id="dice-slot-2" onclick="handleDice(2)" class="dice-slot">❓</div>
                 `;
+            } else {
+                els.diceSection.innerHTML = `<button onclick="generateExercise()" class="btn-game-action">Nuevo Reto 🎲</button>`;
             }
+        }
+        if (isCamino || mode === 'puzzle') {
+            // Auto open config on first start of these activities
+            this.openConfigModal();
         }
 
         this.generateExercise();
-        setTimeout(() => this.resizeCanvas(), 100);
     }
 
     setDifficulty(d) {
         this.currentDifficulty = d;
-        this.elements.inputs.diff1.className = d === 1 ? 'difficulty-btn active' : 'difficulty-btn';
-        this.elements.inputs.diff2.className = d === 2 ? 'difficulty-btn active' : 'difficulty-btn';
-        this.elements.inputs.diff3.className = d === 3 ? 'difficulty-btn active' : 'difficulty-btn';
+        for (let i = 1; i <= 3; i++) this.elements.inputs[`diff${i}`].className = i === d ? 'difficulty-btn active' : 'difficulty-btn';
         this.setGameMode(this.gameMode);
     }
 
     resetRound() {
-        if (['lectura', 'bloques', 'representa', 'antpost', 'camino', 'batido', 'vecinos', 'reloj', 'puzzle'].some(m => this.gameMode.includes(m))) {
-            this.generateExercise();
-        } else {
-            this.val1 = null; this.val2 = null; this.roundFinished = false;
-            this.userInputValue = ""; this.userSelectedSymbol = null;
-
-            this.elements.exerciseContainer.innerHTML = `<div class="placeholder-msg" style="color: var(--neutral-300); text-transform:uppercase; font-weight:bold;">Lanza los dados</div>`;
-            this.elements.instruction.innerText = "Toca los dados";
-            this.elements.instruction.className = "instruction-pill instruction-neutral";
-
-            const s1 = document.getElementById('dice-slot-1');
-            const s2 = document.getElementById('dice-slot-2');
-            if (s1) s1.innerHTML = '<span class="text-2xl">❓</span>';
-            if (s2) s2.innerHTML = '<span class="text-2xl">❓</span>';
-
-            const btnStory = document.getElementById('btn-ia-story');
-            if (btnStory) btnStory.style.display = 'none';
-
-            this.clearCanvas();
-        }
+        this.generateExercise();
     }
 
     generateExercise() {
@@ -388,16 +185,14 @@ class MathApp {
         this.userInputValue = "";
         this.lectInputs = { pures: "", units: "", total: "" };
         this.userBlocks = { tens: 0, units: 0 };
-        this.activeField = 'pures';
         this.antPostInputs = { before: "", after: "" };
-        this.activeAntPost = 'before';
-        this.val1 = null; this.val2 = null; this.userSelectedSymbol = null;
-
+        this.val1 = null; this.val2 = null;
         this.clearCanvas();
         this.elements.instruction.innerText = "Resuelve el reto";
         this.elements.instruction.className = "instruction-pill instruction-active";
 
         if (this.gameMode === 'lectura') this.genLectura();
+        else if (this.gameMode === 'comparar') this.genComparar();
         else if (this.gameMode === 'bloques') this.genBloques();
         else if (this.gameMode === 'representa') this.genRepresenta();
         else if (this.gameMode === 'antpost') this.genAntPost();
@@ -406,680 +201,200 @@ class MathApp {
         else if (this.gameMode === 'vecinos') this.genVecinos();
         else if (this.gameMode === 'reloj') this.genReloj();
         else if (this.gameMode === 'puzzle') this.genPuzzle();
-        else {
-            this.elements.exerciseContainer.innerHTML = `<div class="placeholder-msg" style="color: var(--neutral-300); text-transform:uppercase; font-weight:bold;">Lanza los dados</div>`;
-            this.elements.instruction.innerText = "Toca los dados";
-        }
+        else this.elements.exerciseContainer.innerHTML = `<div class="placeholder-msg">Lanza los dados</div>`;
     }
 
-    // --- Generators ---
+    // --- Config Modal Logic ---
+    openConfigModal() {
+        const modal = document.getElementById('config-modal');
+        const title = document.getElementById('config-title');
+        const options = document.getElementById('config-options');
 
-    genLectura() { this.val1 = this.getRandomNumber(); this.renderLectura(); }
-    genBloques() { this.val1 = Math.floor(Math.random() * 99) + 1; this.renderBloques(); }
-    genRepresenta() { this.val1 = Math.floor(Math.random() * 99) + 1; this.renderRepresenta(); }
-    genAntPost() { this.val1 = Math.floor(Math.random() * 96) + 2; this.renderAntPost(); }
-    genCamino() {
-        // Generar números según configuración
-        const total = this.caminoSettings.rows * this.caminoSettings.cols;
-        const step = this.caminoSettings.step;
-        this.caminoNumbers = [];
-        for (let i = 0; i < total; i++) {
-            this.caminoNumbers.push((i + 1) * step);
-        }
-        this.caminoStart = step;
-        this.caminoEnd = total * step;
-        this.caminoDirection = 1;
-        this.currentPathNum = this.caminoStart;
-        this.renderCamino();
-    }
+        modal.style.display = 'flex';
 
-    setCaminoSetting(key, value) {
-        if (key === 'rows') this.caminoSettings.rows = Math.min(5, Math.max(1, value));
-        else if (key === 'cols') this.caminoSettings.cols = Math.min(7, Math.max(1, value));
-        else if (key === 'displayMode') this.caminoSettings.displayMode = value;
-        else if (key === 'step') this.caminoSettings.step = value;
-        this.genCamino();
-    }
-
-    getRandomNumber() {
-        if (this.currentDifficulty === 1) return Math.floor(Math.random() * 9) + 1;
-        if (this.currentDifficulty === 2) return Math.floor(Math.random() * 41) + 10;
-        return Math.floor(Math.random() * 51) + 50;
-    }
-
-    // --- BATIDO MATEMÁTICO ---
-    genBatido() {
-        // Generar suma simple con frutas
-        const maxNum = this.currentDifficulty === 1 ? 5 : (this.currentDifficulty === 2 ? 10 : 15);
-        this.val1 = Math.floor(Math.random() * maxNum) + 1;
-        this.val2 = Math.floor(Math.random() * maxNum) + 1;
-        this.batidoFrutas = [];
-        this.batidoTarget = this.val1 + this.val2;
-        this.batidoCount = 0;
-        this.renderBatido();
-    }
-
-    renderBatido() {
-        const frutas = ['🍓', '🍊', '🍇', '🍎', '🍌'];
-        const fruta1 = frutas[Math.floor(Math.random() * frutas.length)];
-        const fruta2 = frutas[Math.floor(Math.random() * frutas.length)];
-
-        this.elements.exerciseContainer.innerHTML = `
-            <div style="display:flex; flex-direction:column; align-items:center; gap:1rem;" class="animate-pop">
-                <div style="font-size:1.5rem; font-weight:bold;">¿Cuántas frutas hay en total?</div>
-                <div style="display:flex; align-items:center; gap:1rem; font-size:2rem;">
-                    <div style="padding:1rem; background:#fef2f2; border-radius:12px;">
-                        ${fruta1.repeat(this.val1)}
-                    </div>
-                    <span style="font-size:3rem; color:var(--neutral-300);">+</span>
-                    <div style="padding:1rem; background:#f0fdf4; border-radius:12px;">
-                        ${fruta2.repeat(this.val2)}
-                    </div>
-                    <span style="font-size:3rem; color:var(--neutral-300);">=</span>
-                    <div class="number-box" style="min-width:80px; border:3px solid var(--primary); border-radius:12px; padding:0.5rem;">
-                        ${this.userInputValue || '?'}
-                    </div>
-                </div>
-            </div>`;
-        this.elements.instruction.innerText = "Cuenta las frutas y escribe el total";
-    }
-
-    // --- VECINOS (Casas) ---
-    genVecinos() {
-        const maxNum = this.currentDifficulty === 1 ? 18 : (this.currentDifficulty === 2 ? 48 : 97);
-        this.val1 = Math.floor(Math.random() * maxNum) + 2;
-        this.vecinoInputs = { before: '', after: '' };
-        this.activeVecino = 'before';
-        this.renderVecinos();
-    }
-
-    renderVecinos() {
-        const houseStyle = 'display:flex; flex-direction:column; align-items:center;';
-        const roofStyle = 'width:0; height:0; border-left:40px solid transparent; border-right:40px solid transparent;';
-        const bodyStyle = 'width:70px; height:60px; display:flex; align-items:center; justify-content:center; font-size:1.5rem; font-weight:bold; border-radius:4px;';
-
-        this.elements.exerciseContainer.innerHTML = `
-            <div style="display:flex; align-items:flex-end; gap:1.5rem; justify-content:center;" class="animate-pop">
-                <div style="${houseStyle}" onclick="app.setActiveVecino('before')">
-                    <div style="${roofStyle} border-bottom:35px solid #dc2626;"></div>
-                    <div style="${bodyStyle} background:#fed7aa; border:3px solid ${this.activeVecino === 'before' ? 'var(--primary)' : '#f97316'}; cursor:pointer;">
-                        ${this.vecinoInputs.before || '?'}
-                    </div>
-                </div>
-                <div style="${houseStyle}">
-                    <div style="${roofStyle} border-bottom:45px solid #22c55e;"></div>
-                    <div style="${bodyStyle} background:#fef08a; border:3px solid #eab308; font-size:2rem; height:70px; width:80px;">
-                        ${this.val1}
-                    </div>
-                </div>
-                <div style="${houseStyle}" onclick="app.setActiveVecino('after')">
-                    <div style="${roofStyle} border-bottom:35px solid #dc2626;"></div>
-                    <div style="${bodyStyle} background:#fed7aa; border:3px solid ${this.activeVecino === 'after' ? 'var(--primary)' : '#f97316'}; cursor:pointer;">
-                        ${this.vecinoInputs.after || '?'}
-                    </div>
-                </div>
-            </div>`;
-        this.elements.instruction.innerText = "¿Qué números viven al lado?";
-    }
-
-    setActiveVecino(v) { this.activeVecino = v; this.renderVecinos(); }
-
-    // --- RELOJ ---
-    genReloj() {
-        // Nivel 1: horas en punto, Nivel 2: y media, Nivel 3: cuartos
-        this.relojHora = Math.floor(Math.random() * 12) + 1;
-        if (this.currentDifficulty === 1) {
-            this.relojMinutos = 0;
-        } else if (this.currentDifficulty === 2) {
-            this.relojMinutos = Math.random() > 0.5 ? 0 : 30;
+        if (this.gameMode.includes('camino')) {
+            title.innerText = "⚙️ Configuración del Camino";
+            this.renderConfigCamino(options);
+        } else if (this.gameMode === 'puzzle') {
+            title.innerText = "⚙️ Configuración del Puzzle";
+            this.renderConfigPuzzle(options);
         } else {
-            this.relojMinutos = [0, 15, 30, 45][Math.floor(Math.random() * 4)];
+            modal.style.display = 'none';
         }
-        this.renderReloj();
     }
 
-    renderReloj() {
-        const h = this.relojHora;
-        const m = this.relojMinutos;
-        // Calcular ángulos de las manecillas
-        const hourAngle = (h % 12) * 30 + m * 0.5 - 90;
-        const minAngle = m * 6 - 90;
-
-        // Generar opciones de respuesta
-        let options = [];
-        const correctText = m === 0 ? `${h}:00` : `${h}:${m < 10 ? '0' + m : m}`;
-        options.push(correctText);
-        // Añadir distractores
-        for (let i = 0; i < 3; i++) {
-            let fakeH = Math.floor(Math.random() * 12) + 1;
-            let fakeM = this.currentDifficulty === 1 ? 0 : [0, 15, 30, 45][Math.floor(Math.random() * 4)];
-            let fakeText = fakeM === 0 ? `${fakeH}:00` : `${fakeH}:${fakeM < 10 ? '0' + fakeM : fakeM}`;
-            if (!options.includes(fakeText)) options.push(fakeText);
-        }
-        while (options.length < 4) options.push(`${Math.floor(Math.random() * 12) + 1}:00`);
-        options = options.sort(() => Math.random() - 0.5);
-
-        this.elements.exerciseContainer.innerHTML = `
-            <div style="display:flex; flex-direction:column; align-items:center; gap:1.5rem;" class="animate-pop">
-                <svg width="150" height="150" viewBox="0 0 100 100">
-                    <circle cx="50" cy="50" r="45" fill="white" stroke="var(--primary)" stroke-width="4"/>
-                    ${[12, 3, 6, 9].map((n, i) => `<text x="${50 + 35 * Math.sin(i * Math.PI / 2)}" y="${55 - 35 * Math.cos(i * Math.PI / 2)}" text-anchor="middle" font-size="10" font-weight="bold">${n}</text>`).join('')}
-                    <line x1="50" y1="50" x2="${50 + 25 * Math.cos(hourAngle * Math.PI / 180)}" y2="${50 + 25 * Math.sin(hourAngle * Math.PI / 180)}" stroke="#1e293b" stroke-width="4" stroke-linecap="round"/>
-                    <line x1="50" y1="50" x2="${50 + 35 * Math.cos(minAngle * Math.PI / 180)}" y2="${50 + 35 * Math.sin(minAngle * Math.PI / 180)}" stroke="#64748b" stroke-width="2" stroke-linecap="round"/>
-                    <circle cx="50" cy="50" r="3" fill="#ef4444"/>
-                </svg>
-                <div style="display:flex; gap:0.75rem; flex-wrap:wrap; justify-content:center;">
-                    ${options.map(opt => `<button onclick="app.checkReloj('${opt}')" class="btn-nav" style="padding:0.75rem 1.5rem; font-size:1.2rem; font-weight:bold;">${opt}</button>`).join('')}
+    renderConfigCamino(container) {
+        const s = this.caminoSettings;
+        container.innerHTML = `
+            <div class="config-group">
+                <div class="config-group-title">📏 Tamaño de la Cuadrícula</div>
+                <div class="config-input-row">
+                    <label>Filas: <input type="number" value="${s.rows}" onchange="setConfig('rows', this.value)" class="config-number-input" min="2" max="10"></label>
+                    <label>Columnas: <input type="number" value="${s.cols}" onchange="setConfig('cols', this.value)" class="config-number-input" min="2" max="10"></label>
                 </div>
-            </div>`;
-        this.elements.instruction.innerText = "¿Qué hora marca el reloj?";
-    }
-
-    checkReloj(answer) {
-        if (this.roundFinished) return;
-        const m = this.relojMinutos;
-        const correct = m === 0 ? `${this.relojHora}:00` : `${this.relojHora}:${m < 10 ? '0' + m : m}`;
-        this.handleFeedback(answer === correct);
-    }
-
-    // --- PUZZLE NUMÉRICO (Series) ---
-    genPuzzle() {
-        // Nivel 1: 0-20, Nivel 2: 0-50, Nivel 3: 0-99
-        const maxStart = this.currentDifficulty === 1 ? 15 : (this.currentDifficulty === 2 ? 45 : 94);
-        const isAscending = Math.random() > 0.3; // 70% ascendente
-        this.puzzleAscending = isAscending;
-
-        const start = Math.floor(Math.random() * maxStart) + (isAscending ? 1 : 5);
-        this.puzzleSeries = [];
-        this.puzzleMissingIndex = Math.floor(Math.random() * 5); // 5 números en la serie
-
-        for (let i = 0; i < 5; i++) {
-            this.puzzleSeries.push(isAscending ? start + i : start - i);
-        }
-        this.puzzleAnswer = this.puzzleSeries[this.puzzleMissingIndex];
-        this.renderPuzzle();
-    }
-
-    renderPuzzle() {
-        const dir = this.puzzleAscending ? '↗️ Subiendo' : '↘️ Bajando';
-
-        this.elements.exerciseContainer.innerHTML = `
-            <div style="display:flex; flex-direction:column; align-items:center; gap:1.5rem;" class="animate-pop">
-                <div style="font-size:1.2rem; color:var(--neutral-500);">${dir}</div>
-                <div style="display:flex; gap:0.5rem; align-items:center;">
-                    ${this.puzzleSeries.map((num, i) => {
-            if (i === this.puzzleMissingIndex) {
-                return `<div style="width:60px; height:60px; background:#fef3c7; border:3px solid var(--primary); border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.5rem; font-weight:bold;">${this.userInputValue || '?'}</div>`;
-            }
-            return `<div style="width:60px; height:60px; background:#dbeafe; border:2px solid #3b82f6; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.5rem; font-weight:bold;">${num}</div>`;
-        }).join('')}
+            </div>
+            <div class="config-group">
+                <div class="config-group-title">🪜 Salto de Números</div>
+                <div class="config-row">
+                    <button onclick="setConfig('step', 1)" class="config-btn ${s.step == 1 ? 'active' : ''}">+1</button>
+                    <button onclick="setConfig('step', 2)" class="config-btn ${s.step == 2 ? 'active' : ''}">+2</button>
+                    <button onclick="setConfig('step', 5)" class="config-btn ${s.step == 5 ? 'active' : ''}">+5</button>
+                    <button onclick="setConfig('step', 10)" class="config-btn ${s.step == 10 ? 'active' : ''}">+10</button>
                 </div>
-            </div>`;
-        this.elements.instruction.innerText = "¿Qué número falta en la serie?";
+            </div>
+            <div class="config-group">
+                <div class="config-group-title">🧩 Disposición</div>
+                <div class="config-row">
+                    <button onclick="setConfig('mode', 'ordered')" class="config-btn ${s.mode == 'ordered' ? 'active' : ''}">Ordenado</button>
+                    <button onclick="setConfig('mode', 'random')" class="config-btn ${s.mode == 'random' ? 'active' : ''}">Desordenado</button>
+                    <button onclick="setConfig('mode', 'neighbor')" class="config-btn ${s.mode == 'neighbor' ? 'active' : ''}">Colindantes</button>
+                </div>
+            </div>
+            <div class="config-group">
+                <div class="config-group-title">🔄 Dirección de Búsqueda</div>
+                <div class="config-row">
+                    <button onclick="setConfig('direction', 'forward')" class="config-btn ${s.direction == 'forward' ? 'active' : ''}">Ascendente (1 > 10)</button>
+                    <button onclick="setConfig('direction', 'backward')" class="config-btn ${s.direction == 'backward' ? 'active' : ''}">Inversa (10 > 1)</button>
+                </div>
+            </div>
+        `;
     }
 
-    // --- Renderers (Horizontal Layouts) ---
+    renderConfigPuzzle(container) {
+        const s = this.puzzleSettings;
+        container.innerHTML = `
+            <div class="config-group">
+                <div class="config-group-title">🪜 Salto de Números</div>
+                <div class="config-row">
+                    <button onclick="setConfig('step', 1)" class="config-btn ${s.step == 1 ? 'active' : ''}">+1</button>
+                    <button onclick="setConfig('step', 2)" class="config-btn ${s.step == 2 ? 'active' : ''}">+2</button>
+                    <button onclick="setConfig('step', 5)" class="config-btn ${s.step == 5 ? 'active' : ''}">+5</button>
+                </div>
+            </div>
+            <div class="config-group">
+                <div class="config-group-title">🧩 Tipo de Secuencia</div>
+                <div class="config-row">
+                    <button onclick="setConfig('mode', 'ordered')" class="config-btn ${s.mode == 'ordered' ? 'active' : ''}">Correlativa</button>
+                    <button onclick="setConfig('mode', 'random')" class="config-btn ${s.mode == 'random' ? 'active' : ''}">Salteada</button>
+                </div>
+            </div>
+        `;
+    }
 
+    setConfig(key, val) {
+        const settings = this.gameMode.includes('camino') ? this.caminoSettings : this.puzzleSettings;
+        if (key === 'rows' || key === 'cols' || key === 'step') val = parseInt(val);
+        settings[key] = val;
+        this.openConfigModal(); // Re-render
+    }
+
+    closeConfigModal() {
+        document.getElementById('config-modal').style.display = 'none';
+        this.generateExercise();
+    }
+
+    // --- Activity Handlers ---
+    genLectura() { this.val1 = this.getRandomNumber(); this.renderLectura(); }
     renderLectura() {
-        // Mostrar palabra escrita -> el niño teclea el número
         this.elements.exerciseContainer.innerHTML = `
-            <div style="display:flex; flex-direction:row; align-items:center; justify-content:center; gap:2rem;" class="animate-pop">
-                <div class="cursive-text" style="font-size:3rem;">${this.getColoredWord(this.val1)}</div>
-                <span style="font-size:2rem; color:var(--neutral-300);">→</span>
-                <div class="number-box" style="min-width:100px; border:3px solid var(--primary); border-radius:12px; padding:0.5rem;">${this.userInputValue || '?'}</div>
+            <div class="flex-row items-center justify-center gap-4 animate-pop">
+                <div class="cursive-text" style="font-size:2.5rem;">${this.getColoredWord(this.val1)}</div>
+                <div class="number-box">${this.userInputValue || '?'}</div>
             </div>`;
-        this.elements.instruction.innerText = "Escribe el número";
     }
 
-    setActiveField(f) { this.activeField = f; this.renderBloques(); }
-
+    genBloques() {
+        this.lectInputs = { pures: "", units: "", total: "" };
+        this.val1 = Math.floor(Math.random() * 99) + 1;
+        this.activeField = 'pures';
+        this.renderBloques();
+    }
     renderBloques() {
+        // Horizontal Layout: Visuals (Left) - Inputs (Right)
         this.elements.exerciseContainer.innerHTML = `
-            <div class="flex-row items-center justify-center gap-6 w-full animate-pop" style="min-height: 120px; display:flex; flex-direction:row; flex-wrap:nowrap; align-items:center; justify-content:center;">
-                <div style="display:flex; align-items:flex-end;">${this.getSticks(this.val1, '#1e3a8a')}</div>
-                <span class="text-4xl" style="color:var(--neutral-300); font-weight:lighter;">=</span>
-                <div class="flex-row gap-4 items-center" style="display:flex; flex-direction:row; align-items:center; gap:1rem;">
-                    <div onclick="app.setActiveField('pures')" class="input-box-field tens-border ${this.activeField === 'pures' ? 'active' : ''}">${this.lectInputs.pures ? `<span class="tens">${this.lectInputs.pures}</span>` : ''}</div>
-                    <div onclick="app.setActiveField('units')" class="input-box-field units-border ${this.activeField === 'units' ? 'active' : ''}">${this.lectInputs.units ? `<span class="units">${this.lectInputs.units}</span>` : ''}</div>
-                    <span class="text-xl" style="color:var(--neutral-300)">=</span>
-                    <div onclick="app.setActiveField('total')" class="input-box-field total-border ${this.activeField === 'total' ? 'active' : ''}">${this.lectInputs.total}</div>
+            <div class="flex-row items-center justify-center w-full gap-4">
+                <div class="flex-column items-center justify-center" style="flex:1;">
+                    ${this.getSticks(this.val1, '#1e3a8a')}
+                </div>
+                <div class="flex-row items-center gap-4" style="background:white; padding:1rem; border-radius:20px; border:2px solid #e2e8f0; box-shadow:0 10px 15px -3px rgba(0,0,0,0.1);">
+                    <div onclick="setActiveField('pures')" class="input-box-field tens-border ${this.activeField === 'pures' ? 'active' : ''}">
+                        ${this.lectInputs.pures ? `<span class="tens">${this.lectInputs.pures}</span>` : ''}
+                        <div class="label-guide" style="position:absolute; bottom:-20px; color:#ef4444;">D</div>
+                    </div>
+                    <div onclick="setActiveField('units')" class="input-box-field units-border ${this.activeField === 'units' ? 'active' : ''}">
+                        ${this.lectInputs.units ? `<span class="units">${this.lectInputs.units}</span>` : ''}
+                        <div class="label-guide" style="position:absolute; bottom:-20px; color:#3b82f6;">U</div>
+                    </div>
+                    <span class="text-3xl text-slate-300">=</span>
+                    <div onclick="setActiveField('total')" class="input-box-field total-border ${this.activeField === 'total' ? 'active' : ''}">
+                        ${this.lectInputs.total}
+                        <div class="label-guide" style="position:absolute; bottom:-20px; color:#64748b;">Total</div>
+                    </div>
                 </div>
             </div>`;
         this.elements.instruction.innerText = "Cuenta los bloques";
     }
+    setActiveField(f) { this.activeField = f; this.renderBloques(); }
 
+    genRepresenta() {
+        this.userBlocks = { tens: 0, units: 0 };
+        this.val1 = Math.floor(Math.random() * 99) + 1;
+        this.renderRepresenta();
+    }
     renderRepresenta() {
-        // Generar cubos azules dinámicamente según userBlocks.units
-        let unitCubes = '';
-        for (let i = 0; i < this.userBlocks.units; i++) {
-            unitCubes += '<div class="unit-cube" style="width:20px; height:20px; background:var(--primary); border:1px solid #1e3a8a; margin:2px;"></div>';
-        }
-
-        // Generar barras rojas dinámicamente según userBlocks.tens
-        let tenBars = '';
-        for (let i = 0; i < this.userBlocks.tens; i++) {
-            tenBars += '<div class="ten-bar" style="width:14px; height:60px; margin:2px;"><div class="bar-segment"></div>'.repeat(1) + '</div>';
-        }
-
+        // Horizontal Layout: Number (Left) - Controls (Center) - Visuals (Right)
         this.elements.exerciseContainer.innerHTML = `
-            <div style="display:flex; flex-direction:row; align-items:center; justify-content:center; gap:2rem;" class="animate-pop">
-                <div class="number-box" style="font-size:4rem;">${this.val1}</div>
-                <span style="font-size:2rem; color:var(--neutral-300);">→</span>
-                <div style="display:flex; flex-direction:row; align-items:flex-start; gap:1.5rem;">
-                    <div class="interactive-block tens-block" style="min-width:80px; text-align:center;">
-                        <div style="display:flex; flex-wrap:wrap; justify-content:center; min-height:70px;">${tenBars || '<span style="color:var(--neutral-300);">0</span>'}</div>
-                        <div style="display:flex; gap:8px; margin-top:8px;">
-                            <button onclick="adjustBlock('tens',1)" class="btn-adjust btn-plus">+</button>
-                            <button onclick="adjustBlock('tens',-1)" class="btn-adjust btn-minus">-</button>
+            <div class="flex-row items-center justify-around w-full gap-4">
+                <div class="number-box animate-pop" style="font-size:5rem; min-width:120px;">${this.val1}</div>
+                
+                <div class="flex-row gap-6">
+                    <div class="flex items-center p-3 bg-red-50 rounded-xl gap-2 border-2 border-red-100 flex-col">
+                        <div class="tens font-bold text-xl">${this.userBlocks.tens} D</div>
+                        <div class="flex gap-2">
+                             <button onclick="adjustBlock('tens',1)" class="w-10 h-10 bg-red-500 text-white font-bold rounded-lg text-xl shadow-sm hover:bg-red-600 transition">+</button>
+                             <button onclick="adjustBlock('tens',-1)" class="w-10 h-10 bg-white text-red-500 border-2 border-red-200 rounded-lg text-xl shadow-sm hover:bg-red-50 transition">-</button>
                         </div>
-                        <div class="tens font-bold" style="margin-top:4px;">${this.userBlocks.tens} D</div>
                     </div>
-                    <div class="interactive-block units-block" style="min-width:80px; text-align:center;">
-                        <div style="display:flex; flex-wrap:wrap; justify-content:center; min-height:70px;">${unitCubes || '<span style="color:var(--neutral-300);">0</span>'}</div>
-                        <div style="display:flex; gap:8px; margin-top:8px;">
-                            <button onclick="adjustBlock('units',1)" class="btn-adjust btn-plus-u">+</button>
-                            <button onclick="adjustBlock('units',-1)" class="btn-adjust btn-minus-u">-</button>
+                    <div class="flex items-center p-3 bg-blue-50 rounded-xl gap-2 border-2 border-blue-100 flex-col">
+                        <div class="units font-bold text-xl">${this.userBlocks.units} U</div>
+                        <div class="flex gap-2">
+                            <button onclick="adjustBlock('units',1)" class="w-10 h-10 bg-blue-500 text-white font-bold rounded-lg text-xl shadow-sm hover:bg-blue-600 transition">+</button>
+                            <button onclick="adjustBlock('units',-1)" class="w-10 h-10 bg-white text-blue-500 border-2 border-blue-200 rounded-lg text-xl shadow-sm hover:bg-blue-50 transition">-</button>
                         </div>
-                        <div class="units font-bold" style="margin-top:4px;">${this.userBlocks.units} U</div>
                     </div>
+                </div>
+
+                <div class="flex items-end justify-center" style="min-width:200px; height:120px;">
+                    ${this.getSticks(this.userBlocks.tens * 10 + this.userBlocks.units, '#1e3a8a')}
                 </div>
             </div>`;
         this.elements.instruction.innerText = "Representa el número";
     }
+    adjustBlock(t, a) { if (this.roundFinished) return; if (t === 'tens') this.userBlocks.tens = Math.max(0, this.userBlocks.tens + a); else this.userBlocks.units = Math.max(0, this.userBlocks.units + a); this.renderRepresenta(); this.playSound('tick'); }
 
-    renderStandard(colorClass = "text-blue-600") {
-        const showS = (this.currentDifficulty === 1 || (this.currentDifficulty === 2 && this.showSticksIA));
-        const s1 = showS ? this.getSticks(this.val1, '#1e3a8a') : '';
-        const s2 = showS ? this.getSticks(this.val2, this.gameMode === 'sumas' ? '#1e3a8a' : '#dc2626') : '';
-
-        // Ensure horizontal flow for sums/subtractions too
-        this.elements.exerciseContainer.innerHTML = `
-            <div class="animate-pop w-full" style="display:grid; grid-template-columns: repeat(5, auto); align-items:center; justify-content:center; gap:10px;">
-                <div class="flex-col items-center">${this.formatNumber(this.val1)}${s1}</div>
-                <div class="op-symbol" style="justify-self: center;">${this.gameMode === 'sumas' ? '＋' : '－'}</div>
-                <div class="flex-col items-center">${this.formatNumber(this.val2)}${s2}</div>
-                <span class="op-symbol" style="justify-self: center;">＝</span>
-                <div class="number-box" style="color:var(--primary); min-width:80px; border-bottom:3px solid var(--neutral-100);">${this.userInputValue || '?'}</div>
-            </div>`;
+    genAntPost() {
+        this.antPostInputs = { before: "", after: "" };
+        this.val1 = this.getRandomNumber();
+        this.activeAntPost = 'before';
+        this.renderAntPost();
     }
-
     renderAntPost() {
         this.elements.exerciseContainer.innerHTML = `
-            <div class="flex-row items-center justify-center gap-3 animate-pop" style="display:flex; flex-direction:row; align-items:center; justify-content:center;">
-                <div onclick="app.setActiveAntPost('before')" class="input-box-field total-border ${this.activeAntPost === 'before' ? 'active' : ''}">${this.antPostInputs.before}</div>
-                <span class="text-xl" style="color:var(--neutral-300); opacity:0.5;">&lt;</span>
+            <div class="flex-row items-center justify-center gap-4 animate-pop">
+                <div onclick="setActiveAntPost('before')" class="input-box-field ${this.activeAntPost === 'before' ? 'active' : ''}">${this.antPostInputs.before || '?'}</div>
                 <div class="central-number-card">${this.val1}</div>
-                <span class="text-xl" style="color:var(--neutral-300); opacity:0.5;">&lt;</span>
-                <div onclick="app.setActiveAntPost('after')" class="input-box-field total-border ${this.activeAntPost === 'after' ? 'active' : ''}">${this.antPostInputs.after}</div>
-            </div>`;
-        this.elements.instruction.innerText = "Toca una casilla y escribe";
-    }
-
-    renderComparar(signClass = "text-gray-400") {
-        let midContent = "";
-        if (this.userSelectedSymbol) {
-            if (this.userSelectedSymbol === '=') midContent = `<span class="${signClass} font-bold text-7xl md:text-9xl">=</span>`;
-            else midContent = this.getComparisonSVG(this.userSelectedSymbol === '>' ? 'gt' : 'lt', true, signClass.includes('correct') ? '#22c55e' : '#facc15');
-        } else {
-            midContent = `<span class="text-7xl md:text-9xl font-bold" style="color:var(--neutral-300)">?</span>`;
-        }
-        this.elements.exerciseContainer.innerHTML = `
-            <div class="flex-row items-center justify-center gap-10 animate-pop" style="display:flex; flex-direction:row; align-items:center; justify-content:center; gap:2.5rem;">
-                <div>${this.formatNumber(this.val1, true)}</div>
-                <div class="flex-row items-center justify-center" style="min-width: 120px;">${midContent}</div>
-                <div>${this.formatNumber(this.val2, true)}</div>
+                <div onclick="setActiveAntPost('after')" class="input-box-field ${this.activeAntPost === 'after' ? 'active' : ''}">${this.antPostInputs.after || '?'}</div>
             </div>`;
     }
-
-    // --- Handling Input & Game Logic ---
-
-    // ... (Same logic for handleDice, pressNum, backspace, adjustBlock as before, just updated class names if needed)
-    handleDice(id) {
-        if (this.roundFinished) { this.resetRound(); return; }
-        if (this.isRolling[id]) return;
-        this.isRolling[id] = true;
-        const slot = document.getElementById(`dice-slot-${id}`);
-        slot.classList.add('dice-rolling');
-        let t = 0;
-        const int = setInterval(() => {
-            slot.innerHTML = this.getDiceSVG(Math.floor(Math.random() * 6) + 1);
-            this.playSound('tick');
-            if (++t > 7) {
-                clearInterval(int);
-                slot.classList.remove('dice-rolling');
-                const maxVal = this.currentDifficulty === 1 ? 12 : (this.currentDifficulty === 2 ? 35 : 50);
-                const val = Math.floor(Math.random() * maxVal) + 1;
-                if (id === 1) this.val1 = val; else this.val2 = val;
-
-                if (val <= 6) slot.innerHTML = this.getDiceSVG(val);
-                else slot.innerHTML = `<span class="dice-number">${val}</span>`;
-
-                this.isRolling[id] = false;
-                if (this.val1 !== null && this.val2 !== null) {
-                    // Para RESTAS: asegurar que val1 >= val2 (nunca negativo)
-                    if (this.gameMode === 'restas' && this.val1 < this.val2) {
-                        const temp = this.val1;
-                        this.val1 = this.val2;
-                        this.val2 = temp;
-                        // Actualizar visualmente los dados
-                        document.getElementById('dice-slot-1').innerHTML = this.val1 <= 6 ? this.getDiceSVG(this.val1) : `<span class="dice-number">${this.val1}</span>`;
-                        document.getElementById('dice-slot-2').innerHTML = this.val2 <= 6 ? this.getDiceSVG(this.val2) : `<span class="dice-number">${this.val2}</span>`;
-                    }
-                    if (this.gameMode === 'comparar') this.renderComparar();
-                    else this.renderStandard();
-
-                    const btn = document.getElementById('btn-ia-story');
-                    if (this.apiKey && btn) btn.style.display = 'block';
-                }
-            }
-        }, 100);
-    }
-
-    pressNum(n) {
-        if (this.roundFinished || this.gameMode.includes('representa')) return;
-        if (this.gameMode === 'bloques') {
-            if (this.lectInputs[this.activeField].length < 3) {
-                this.lectInputs[this.activeField] += n;
-                this.renderBloques();
-            }
-        } else if (this.gameMode === 'lectura' || this.gameMode === 'batido' || this.gameMode === 'puzzle') {
-            if (this.userInputValue.length < 3) {
-                this.userInputValue += n;
-                if (this.gameMode === 'lectura') this.renderLectura();
-                else if (this.gameMode === 'batido') this.renderBatido();
-                else this.renderPuzzle();
-            }
-        } else if (this.gameMode === 'antpost') {
-            if (this.antPostInputs[this.activeAntPost].length < 3) {
-                this.antPostInputs[this.activeAntPost] += n;
-                this.renderAntPost();
-            }
-        } else if (this.gameMode === 'vecinos') {
-            if (this.vecinoInputs[this.activeVecino].length < 3) {
-                this.vecinoInputs[this.activeVecino] += n;
-                this.renderVecinos();
-            }
-        } else {
-            if (this.userInputValue.length < 3) {
-                this.userInputValue += n;
-                this.renderStandard();
-            }
-        }
-        this.playSound('tick');
-    }
-
-    backspace() {
-        if (this.roundFinished || this.gameMode.includes('representa')) return;
-        if (this.gameMode === 'bloques') {
-            this.lectInputs[this.activeField] = this.lectInputs[this.activeField].slice(0, -1);
-            this.renderBloques();
-        } else if (this.gameMode === 'lectura' || this.gameMode === 'batido' || this.gameMode === 'puzzle') {
-            this.userInputValue = this.userInputValue.slice(0, -1);
-            if (this.gameMode === 'lectura') this.renderLectura();
-            else if (this.gameMode === 'batido') this.renderBatido();
-            else this.renderPuzzle();
-        } else if (this.gameMode === 'antpost') {
-            this.antPostInputs[this.activeAntPost] = this.antPostInputs[this.activeAntPost].slice(0, -1);
-            this.renderAntPost();
-        } else if (this.gameMode === 'vecinos') {
-            this.vecinoInputs[this.activeVecino] = this.vecinoInputs[this.activeVecino].slice(0, -1);
-            this.renderVecinos();
-        } else {
-            this.userInputValue = this.userInputValue.slice(0, -1);
-            this.renderStandard();
-        }
-    }
-
-    adjustBlock(type, amount) {
-        if (this.roundFinished) return;
-        if (type === 'tens') this.userBlocks.tens = Math.max(0, this.userBlocks.tens + amount);
-        else this.userBlocks.units = Math.max(0, this.userBlocks.units + amount);
-        this.renderRepresenta();
-        this.playSound('tick');
-    }
-
-    checkAnswer() {
-        if (this.roundFinished) return;
-        let ok = false;
-        const d = Math.floor(this.val1 / 10);
-        const u = this.val1 % 10;
-
-        switch (this.gameMode) {
-            case 'lectura':
-                ok = (parseInt(this.userInputValue) === this.val1);
-                break;
-            case 'bloques':
-                const bDec = parseInt(this.lectInputs.pures) || 0;
-                const bUni = parseInt(this.lectInputs.units) || 0;
-                const bTot = parseInt(this.lectInputs.total) || 0;
-                ok = (bDec === d && bUni === u && bTot === this.val1);
-                break;
-            case 'representa':
-                ok = (this.userBlocks.tens === d && this.userBlocks.units === u);
-                break;
-            case 'antpost':
-                ok = (parseInt(this.antPostInputs.before) === this.val1 - 1 &&
-                    parseInt(this.antPostInputs.after) === this.val1 + 1);
-                break;
-            case 'batido':
-                ok = (parseInt(this.userInputValue) === this.batidoTarget);
-                break;
-            case 'vecinos':
-                ok = (parseInt(this.vecinoInputs.before) === this.val1 - 1 &&
-                    parseInt(this.vecinoInputs.after) === this.val1 + 1);
-                break;
-            case 'puzzle':
-                ok = (parseInt(this.userInputValue) === this.puzzleAnswer);
-                break;
-            default:
-                if (this.val1 === null || this.val2 === null) return;
-                const expected = this.gameMode === 'sumas' ? this.val1 + this.val2 : this.val1 - this.val2;
-                ok = parseInt(this.userInputValue) === expected;
-        }
-        this.handleFeedback(ok);
-        if (ok && !['lectura', 'bloques', 'representa', 'antpost', 'batido', 'vecinos', 'puzzle', 'reloj'].includes(this.gameMode)) {
-            this.renderStandard("res-correct");
-        }
-    }
-
-    checkComparison(symbol) {
-        if (this.roundFinished) return;
-        this.userSelectedSymbol = symbol;
-        const correct = this.val1 < this.val2 ? '<' : (this.val1 > this.val2 ? '>' : '=');
-        const ok = symbol === correct;
-        this.handleFeedback(ok);
-        this.renderComparar(ok ? "res-correct" : "res-incorrect");
-    }
-
-    handleFeedback(ok) {
-        if (ok) {
-            this.score += 10;
-            this.elements.score.innerText = this.score;
-            this.elements.instruction.innerHTML = "<span class='feedback-success'>¡EXCELENTE! ✨</span>";
-            this.roundFinished = true;
-            this.playSound('applause');
-
-            // Send to Portal
-            if (window.parent !== window) {
-                window.parent.postMessage({
-                    type: 'UPDATE_SCORE',
-                    app: 'mate',
-                    score: this.score
-                }, '*');
-            }
-        } else {
-            this.playSound('fail');
-            this.elements.instruction.innerHTML = "<span class='feedback-error'>¡Inténtalo de nuevo! 💡</span>";
-        }
-    }
-
     setActiveAntPost(p) { this.activeAntPost = p; this.renderAntPost(); }
 
-    renderCamino() {
-        const pg = document.getElementById('page-badge');
-        pg.innerText = `SERIE de ${this.caminoSettings.step} en ${this.caminoSettings.step}`;
-        pg.classList.remove('hidden');
-
-        const rows = this.caminoSettings.rows;
-        const cols = this.caminoSettings.cols;
-        const mode = this.caminoSettings.displayMode;
-
-        // Crear grid 2D para posiciones
-        this.caminoGrid = [];
-        let numIndex = 0;
-
-        if (mode === 'ordered') {
-            // Fila por fila, izquierda a derecha
-            for (let r = 0; r < rows; r++) {
-                let row = [];
-                for (let c = 0; c < cols; c++) {
-                    row.push(this.caminoNumbers[numIndex++]);
-                }
-                this.caminoGrid.push(row);
-            }
-        } else if (mode === 'snake') {
-            // Serpiente: filas alternas van en dirección opuesta
-            for (let r = 0; r < rows; r++) {
-                let row = [];
-                for (let c = 0; c < cols; c++) {
-                    row.push(this.caminoNumbers[numIndex++]);
-                }
-                if (r % 2 === 1) row.reverse();  // Invertir filas impares
-                this.caminoGrid.push(row);
-            }
-        } else if (mode === 'path') {
-            // Camino: cada número adyacente al anterior (genera un recorrido aleatorio)
-            let grid = Array(rows).fill(null).map(() => Array(cols).fill(null));
-            let pos = { r: 0, c: 0 };
-            let visited = new Set();
-
-            for (let i = 0; i < this.caminoNumbers.length; i++) {
-                grid[pos.r][pos.c] = this.caminoNumbers[i];
-                visited.add(`${pos.r},${pos.c}`);
-
-                // Buscar siguiente posición adyacente libre
-                const dirs = [{ r: -1, c: 0 }, { r: 1, c: 0 }, { r: 0, c: -1 }, { r: 0, c: 1 }];
-                const shuffledDirs = dirs.sort(() => Math.random() - 0.5);
-                let found = false;
-                for (let d of shuffledDirs) {
-                    const nr = pos.r + d.r, nc = pos.c + d.c;
-                    if (nr >= 0 && nr < rows && nc >= 0 && nc < cols && !visited.has(`${nr},${nc}`)) {
-                        pos = { r: nr, c: nc };
-                        found = true;
-                        break;
-                    }
-                }
-                if (!found) break;  // No hay más posiciones libres
-            }
-            this.caminoGrid = grid;
-        } else {
-            // Random: mezclar completamente
-            let shuffled = [...this.caminoNumbers].sort(() => Math.random() - 0.5);
-            let idx = 0;
-            for (let r = 0; r < rows; r++) {
-                let row = [];
-                for (let c = 0; c < cols; c++) {
-                    row.push(shuffled[idx++]);
-                }
-                this.caminoGrid.push(row);
-            }
-        }
-
-        // Panel de controles
-        const isMode = (m) => this.caminoSettings.displayMode === m ? 'background:var(--primary); color:white;' : '';
-        const controls = `
-            <div style="display:flex; gap:0.75rem; flex-wrap:wrap; justify-content:center; margin-bottom:0.75rem; padding:0.5rem; background:rgba(255,255,255,0.5); border-radius:8px; font-size:0.7rem;">
-                <div style="display:flex; align-items:center; gap:4px;">
-                    <span style="font-weight:bold;">Filas:</span>
-                    <button onclick="app.setCaminoSetting('rows', app.caminoSettings.rows-1)" class="btn-adjust" style="width:22px;height:22px;">-</button>
-                    <span style="min-width:16px; text-align:center;">${rows}</span>
-                    <button onclick="app.setCaminoSetting('rows', app.caminoSettings.rows+1)" class="btn-adjust" style="width:22px;height:22px;">+</button>
-                </div>
-                <div style="display:flex; align-items:center; gap:4px;">
-                    <span style="font-weight:bold;">Cols:</span>
-                    <button onclick="app.setCaminoSetting('cols', app.caminoSettings.cols-1)" class="btn-adjust" style="width:22px;height:22px;">-</button>
-                    <span style="min-width:16px; text-align:center;">${cols}</span>
-                    <button onclick="app.setCaminoSetting('cols', app.caminoSettings.cols+1)" class="btn-adjust" style="width:22px;height:22px;">+</button>
-                </div>
-                <div style="display:flex; align-items:center; gap:3px;">
-                    <button onclick="app.setCaminoSetting('displayMode', 'ordered')" class="btn-nav" style="padding:3px 6px; font-size:0.6rem; ${isMode('ordered')}">Ordenado</button>
-                    <button onclick="app.setCaminoSetting('displayMode', 'snake')" class="btn-nav" style="padding:3px 6px; font-size:0.6rem; ${isMode('snake')}">Serpiente</button>
-                    <button onclick="app.setCaminoSetting('displayMode', 'path')" class="btn-nav" style="padding:3px 6px; font-size:0.6rem; ${isMode('path')}">Camino</button>
-                    <button onclick="app.setCaminoSetting('displayMode', 'random')" class="btn-nav" style="padding:3px 6px; font-size:0.6rem; ${isMode('random')}">Mezclado</button>
-                </div>
-                <div style="display:flex; align-items:center; gap:3px;">
-                    <button onclick="app.setCaminoSetting('step', 1)" class="btn-nav" style="padding:3px 6px; font-size:0.6rem; ${this.caminoSettings.step === 1 ? 'background:var(--success); color:white;' : ''}">1en1</button>
-                    <button onclick="app.setCaminoSetting('step', 2)" class="btn-nav" style="padding:3px 6px; font-size:0.6rem; ${this.caminoSettings.step === 2 ? 'background:var(--success); color:white;' : ''}">2en2</button>
-                    <button onclick="app.setCaminoSetting('step', 5)" class="btn-nav" style="padding:3px 6px; font-size:0.6rem; ${this.caminoSettings.step === 5 ? 'background:var(--success); color:white;' : ''}">5en5</button>
-                </div>
-            </div>`;
-
-        // Calcular tamaño de burbujas en función de filas y columnas
-        const maxGridHeight = 300; // altura máxima disponible para el grid
-        const maxGridWidth = 500;  // ancho máximo disponible
-        const gap = 6;
-        const bubbleHeight = Math.floor((maxGridHeight - (rows - 1) * gap) / rows);
-        const bubbleWidth = Math.floor((maxGridWidth - (cols - 1) * gap) / cols);
-        const bubbleSize = Math.min(bubbleHeight, bubbleWidth, 70); // máximo 70px
-        const fontSize = bubbleSize > 40 ? '1.2rem' : (bubbleSize > 25 ? '0.9rem' : '0.7rem');
-
-        // Generar grid visual
-        let grid = `<div style="display:grid; grid-template-columns:repeat(${cols}, ${bubbleSize}px); gap:${gap}px; justify-content:center;">`;
-        for (let r = 0; r < this.caminoGrid.length; r++) {
-            for (let c = 0; c < this.caminoGrid[r].length; c++) {
-                const num = this.caminoGrid[r][c];
-                if (num === null) {
-                    grid += `<div style="width:${bubbleSize}px; height:${bubbleSize}px;"></div>`;
-                } else {
-                    const isPassed = num < this.currentPathNum;
-                    grid += `<div onclick="clickCamino(${num}, this)" class="camino-btn ${isPassed ? 'active-path' : ''}" style="width:${bubbleSize}px; height:${bubbleSize}px; display:flex; align-items:center; justify-content:center; font-size:${fontSize};">${num}</div>`;
-                }
-            }
-        }
-        grid += '</div>';
-
-        this.elements.exerciseContainer.innerHTML = controls + grid;
-        this.elements.instruction.innerText = `Busca el ${this.currentPathNum}`;
-    }
-
-    clickCamino(n, el) {
-        if (this.roundFinished || el.classList.contains('active-path')) return;
-        if (n === this.currentPathNum) {
-            el.classList.add('active-path');
-            this.playSound('tick');
-            this.currentPathNum += this.caminoSettings.step;
-            const done = this.currentPathNum > this.caminoEnd;
-            if (done) {
-                this.score += 50;
-                this.handleFeedback(true);
-            } else {
-                this.elements.instruction.innerText = `Busca el ${this.currentPathNum}`;
-            }
-        } else {
-            el.classList.add('shake');
-            setTimeout(() => el.classList.remove('shake'), 300);
-            this.playSound('fail');
-        }
-    }
-
-    // --- Helpers ---
-
-    formatNumber(num, isGiant = false) {
-        if (num === null) return '';
-        const baseClass = isGiant ? 'number-box-giant' : 'number-box';
-        const c = Math.floor(num / 100), d = Math.floor((num % 100) / 10), u = num % 10;
-        return `
-            <div class="flex-col items-center">
-                <div class="flex-row ${baseClass}">
-                    ${c > 0 ? `<span class="hundreds">${c}</span>` : ''}
-                    ${d > 0 || c > 0 ? `<span class="tens">${d}</span>` : ''}
-                    <span class="units">${u}</span>
-                </div>
-                <div class="flex-row label-guide">
-                    ${c > 0 ? `<span class="hundreds">C</span>` : ''}
-                    ${d > 0 || c > 0 ? `<span class="tens">D</span>` : ''}
-                    <span class="units">U</span>
-                </div>
+    genComparar() { this.val1 = this.getRandomNumber(); this.val2 = this.getRandomNumber(); this.renderComparar(); }
+    renderComparar() {
+        this.elements.exerciseContainer.innerHTML = `
+            <div class="flex-row items-center justify-center gap-6 animate-pop">
+                <div class="number-box">${this.val1}</div>
+                <div class="number-box text-neutral-400">?</div>
+                <div class="number-box">${this.val2}</div>
             </div>`;
     }
 
@@ -1087,94 +402,632 @@ class MathApp {
         let s = `<div class="sticks-container">`;
         const d = Math.floor(num / 10), u = num % 10;
         for (let i = 0; i < d; i++) s += `<div class="ten-bar flex-shrink-0">${'<div class="bar-segment"></div>'.repeat(10)}</div>`;
-        if (u > 0 || (d > 0 && u === 0)) { s += `<div class="unit-stack flex-shrink-0">`; for (let i = 0; i < u; i++) s += `<div class="unit-cube"></div>`; s += `</div>`; }
+        if (u > 0 || (d > 0 && u === 0)) {
+            // CAMBIO: Cubos en vertical (columna) en lugar de horizontal
+            s += `<div class="unit-stack flex-shrink-0">`;
+            for (let i = 0; i < u; i++) s += `<div class="unit-cube"></div>`;
+            s += `</div>`;
+        }
         return s + `</div>`;
     }
 
-    getDiceSVG(v) {
-        const dots = { 1: [[50, 50]], 2: [[30, 30], [70, 70]], 3: [[25, 25], [50, 50], [75, 75]], 4: [[30, 30], [70, 30], [30, 70], [70, 70]], 5: [[25, 25], [75, 25], [25, 75], [75, 75], [50, 50]], 6: [[30, 25], [70, 25], [30, 50], [70, 50], [30, 75], [70, 75]] };
-        let s = `<svg viewBox="0 0 100 100" class="dice-svg"><rect width="100" height="100" rx="18" fill="white" stroke="#3b82f6" stroke-width="8"/>`;
-        dots[v].forEach(d => s += `<circle cx="${d[0]}" cy="${d[1]}" r="8" fill="#1e3a8a"/>`); return s + `</svg>`;
+    genVecinos() {
+        this.vecinosInputs = { before: "", after: "" };
+        this.val1 = this.getRandomNumber();
+        this.activeVecino = 'before';
+        this.renderVecinos();
     }
+    renderVecinos() {
+        const beforeVal = this.vecinosInputs.before || '?';
+        const afterVal = this.vecinosInputs.after || '?';
+        this.elements.exerciseContainer.innerHTML = `
+            <div class="flex-row items-center justify-center gap-4 animate-pop">
+                <div style="text-align:center;">
+                    <div style="font-size:0.8rem; color:#64748b; margin-bottom:0.5rem;">🏠 Vecino Anterior</div>
+                    <div onclick="setActiveVecino('before')" class="input-box-field ${this.activeVecino === 'before' ? 'active' : ''}" style="border-color:#f97316;">${beforeVal}</div>
+                </div>
+                <div style="text-align:center;">
+                    <div style="font-size:0.8rem; color:#64748b; margin-bottom:0.5rem;">🏡 Casa Central</div>
+                    <div class="central-number-card">${this.val1}</div>
+                </div>
+                <div style="text-align:center;">
+                    <div style="font-size:0.8rem; color:#64748b; margin-bottom:0.5rem;">🏠 Vecino Posterior</div>
+                    <div onclick="setActiveVecino('after')" class="input-box-field ${this.activeVecino === 'after' ? 'active' : ''}" style="border-color:#f97316;">${afterVal}</div>
+                </div>
+            </div>`;
+        this.elements.instruction.innerText = "¿Qué vecinos tiene este número?";
+    }
+    setActiveVecino(v) { this.activeVecino = v; this.renderVecinos(); }
 
-    getComparisonSVG(type, isBig = false, colorOverride = null) {
-        const size = isBig ? 120 : 60;
-        const color = colorOverride || (type === 'gt' ? '#dc2626' : '#2563eb');
-        const path = type === 'gt' ? "M30 20 L75 50 L30 80" : "M75 20 L30 50 L75 80";
-        let elements = `<path d="${path}" fill="none" stroke="${color}" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>`;
-        if (this.currentDifficulty === 1 && type === 'gt') {
-            elements += `<polygon points="33,26 43,26 38,36" fill="black" /><polygon points="43,32 53,32 48,42" fill="black" /><polygon points="53,38 63,38 58,48" fill="black" /><polygon points="33,74 43,74 38,64" fill="black" /><polygon points="43,68 53,68 48,58" fill="black" /><polygon points="53,62 63,62 58,52" fill="black" />`;
+    genReloj() {
+        this.relojHora = Math.floor(Math.random() * 12) + 1;
+        this.relojMinutos = this.currentDifficulty === 1 ? 0 : (Math.random() > 0.5 ? 0 : 30);
+        this.renderReloj();
+    }
+    renderReloj() {
+        const hora = this.relojHora;
+        const minutos = this.relojMinutos;
+        const anguloHora = ((hora % 12) + minutos / 60) * 30; // 360/12 = 30 grados por hora
+        const anguloMinutos = minutos * 6; // 360/60 = 6 grados por minuto
+
+        // Generar 4 opciones de hora
+        const opciones = [];
+        const correcta = `${hora}:${minutos === 0 ? '00' : '30'}`;
+        opciones.push(correcta);
+
+        // Añadir 3 opciones incorrectas
+        while (opciones.length < 4) {
+            const h = Math.floor(Math.random() * 12) + 1;
+            const m = Math.random() > 0.5 ? 0 : 30;
+            const opcion = `${h}:${m === 0 ? '00' : '30'}`;
+            if (!opciones.includes(opcion)) opciones.push(opcion);
         }
-        return `<svg width="${size}" height="${size}" viewBox="0 0 100 100">${elements}</svg>`;
+
+        // Mezclar opciones
+        opciones.sort(() => Math.random() - 0.5);
+
+        this.elements.exerciseContainer.innerHTML = `
+            <div class="flex-row items-center justify-center gap-4 animate-pop" style="width:100%;">
+                <div style="position:relative;">
+                    <svg width="200" height="200" viewBox="0 0 200 200">
+                        <circle cx="100" cy="100" r="90" fill="white" stroke="#3b82f6" stroke-width="4"/>
+                        ${[12, 3, 6, 9].map((num, i) => {
+            const angle = (i * 90 - 90) * Math.PI / 180;
+            const x = 100 + 70 * Math.cos(angle);
+            const y = 100 + 70 * Math.sin(angle);
+            return `<text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="middle" font-size="20" font-weight="bold" fill="#1e293b">${num}</text>`;
+        }).join('')}
+                        <line x1="100" y1="100" x2="${100 + 50 * Math.sin(anguloHora * Math.PI / 180)}" y2="${100 - 50 * Math.cos(anguloHora * Math.PI / 180)}" stroke="#1e293b" stroke-width="6" stroke-linecap="round"/>
+                        <line x1="100" y1="100" x2="${100 + 70 * Math.sin(anguloMinutos * Math.PI / 180)}" y2="${100 - 70 * Math.cos(anguloMinutos * Math.PI / 180)}" stroke="#3b82f6" stroke-width="4" stroke-linecap="round"/>
+                        <circle cx="100" cy="100" r="6" fill="#ef4444"/>
+                    </svg>
+                </div>
+                <div class="flex-column gap-3">
+                    ${opciones.map(opt => `
+                        <button onclick="checkReloj('${opt}')" class="btn-game-action" style="min-width:120px; font-size:1.5rem;">${opt}</button>
+                    `).join('')}
+                </div>
+            </div>`;
+        this.elements.instruction.innerText = "¿Qué hora marca el reloj?";
+    }
+    checkReloj(opt) {
+        const correcta = `${this.relojHora}:${this.relojMinutos === 0 ? '00' : '30'}`;
+        this.handleFeedback(opt === correcta);
     }
 
+    genPuzzle() {
+        const s = this.puzzleSettings;
+        const paso = s.step;
+        const inicio = Math.floor(Math.random() * 20) + 1;
+
+        if (s.mode === 'ordered') {
+            this.puzzleSequence = [inicio, inicio + paso, inicio + 2 * paso, inicio + 3 * paso];
+        } else {
+            // Salteada pero con lógica
+            this.puzzleSequence = [inicio, inicio + paso * 2, inicio + paso, inicio + paso * 3];
+        }
+
+        this.puzzleMissingIndex = Math.floor(Math.random() * 4);
+        this.puzzleAnswer = this.puzzleSequence[this.puzzleMissingIndex];
+        this.userInputValue = "";
+        this.renderPuzzle();
+    }
+    renderPuzzle() {
+        const boxes = this.puzzleSequence.map((num, idx) => {
+            if (idx === this.puzzleMissingIndex) {
+                return `<div class="input-box-field" style="border-color:#f59e0b; min-width:80px;">${this.userInputValue || '?'}</div>`;
+            } else {
+                return `<div class="number-box" style="font-size:3rem; background:#dbeafe; padding:0.5rem 1rem; border-radius:12px; min-width:80px;">${num}</div>`;
+            }
+        }).join('');
+
+        this.elements.exerciseContainer.innerHTML = `
+            <div class="flex-column items-center justify-center gap-6 animate-pop">
+                <div style="font-size:1.2rem; font-weight:700; color:#64748b;">🧩 Completa la secuencia</div>
+                <div class="flex-row items-center justify-center gap-4">
+                    ${boxes}
+                </div>
+            </div>`;
+        this.elements.instruction.innerText = "¿Qué número falta?";
+    }
+
+    genCamino() {
+        const s = this.caminoSettings;
+        const total = s.rows * s.cols;
+        const step = s.step;
+
+        // Generar números basados en el salto
+        this.caminoNumbers = [];
+        for (let i = 0; i < total; i++) {
+            this.caminoNumbers.push(1 + i * step);
+        }
+
+        if (s.direction === 'forward') {
+            this.currentPathNum = this.caminoNumbers[0];
+            this.caminoTargetIndex = 0;
+        } else {
+            this.currentPathNum = this.caminoNumbers[total - 1];
+            this.caminoTargetIndex = total - 1;
+        }
+
+        this.caminoClicked = new Set();
+
+        // Mezclar si es random
+        this.caminoDisplayNumbers = [...this.caminoNumbers];
+        if (s.mode === 'random') {
+            this.caminoDisplayNumbers.sort(() => Math.random() - 0.5);
+        } else if (s.mode === 'neighbor') {
+            // Lógica de colindantes: Empezar en (0,0) y generar camino adyacente
+            // Por simplicidad en esta versión, mezclaremos pero asegurando una visualización de grid
+            this.caminoDisplayNumbers.sort(() => Math.random() - 0.5);
+        }
+
+        this.renderCamino();
+    }
+
+    renderCamino() {
+        const s = this.caminoSettings;
+        let grid = '';
+
+        for (let i = 0; i < this.caminoDisplayNumbers.length; i++) {
+            const num = this.caminoDisplayNumbers[i];
+            const isClicked = this.caminoClicked.has(num);
+            const isNext = num === this.currentPathNum;
+
+            let btnClass = isClicked ? 'active-path' : (isNext ? 'target-path' : '');
+            grid += `<button onclick="clickCamino(${num})" class="camino-btn ${btnClass}">${num}</button>`;
+        }
+
+        const infoText = s.direction === 'forward' ?
+            `Siguiente: <span style="color:var(--primary);">${this.currentPathNum}</span> (Hacia ${this.caminoNumbers[this.caminoNumbers.length - 1]})` :
+            `Siguiente: <span style="color:var(--primary);">${this.currentPathNum}</span> (Bajando hacia ${this.caminoNumbers[0]})`;
+
+        this.elements.exerciseContainer.innerHTML = `
+            <div class="camino-wrapper animate-pop">
+                <div class="camino-grid" style="grid-template-columns: repeat(${s.cols}, 1fr);">
+                    ${grid}
+                </div>
+                <div class="camino-info">${infoText}</div>
+            </div>`;
+
+        this.elements.instruction.innerText = "Sigue el camino de números";
+    }
+
+    clickCamino(n) {
+        if (this.roundFinished) return;
+        const s = this.caminoSettings;
+
+        if (n === this.currentPathNum) {
+            this.caminoClicked.add(n);
+            this.playSound('tick');
+
+            // Avanzar o retroceder en el índice
+            if (s.direction === 'forward') {
+                this.caminoTargetIndex++;
+            } else {
+                this.caminoTargetIndex--;
+            }
+
+            if (this.caminoTargetIndex < 0 || this.caminoTargetIndex >= this.caminoNumbers.length) {
+                this.handleFeedback(true);
+            } else {
+                this.currentPathNum = this.caminoNumbers[this.caminoTargetIndex];
+                this.renderCamino();
+            }
+        } else {
+            this.playSound('fail');
+            this.elements.instruction.innerText = `¡Busca el ${this.currentPathNum}! 🔍`;
+            this.elements.instruction.className = "instruction-pill feedback-error";
+            setTimeout(() => {
+                this.elements.instruction.innerText = "Sigue el camino de números";
+                this.elements.instruction.className = "instruction-pill instruction-active";
+            }, 1000);
+        }
+    }
+
+    genBatido() {
+        // Genera un objetivo y varios números que pueden sumarse para alcanzarlo
+        this.batidoTarget = this.currentDifficulty === 1 ? (Math.floor(Math.random() * 6) + 5) : (Math.floor(Math.random() * 11) + 10);
+        this.batidoIngredients = [];
+        this.batidoSelected = new Set();
+
+        // Generar ingredientes posibles
+        const numIngredients = 6;
+        const needed = [];
+        let remaining = this.batidoTarget;
+
+        // Asegurar que al menos hay una combinación correcta
+        while (remaining > 0 && needed.length < 3) {
+            const val = Math.min(remaining, Math.floor(Math.random() * 5) + 1);
+            needed.push(val);
+            remaining -= val;
+        }
+
+        // Añadir ingredientes correctos y algunos incorrectos
+        this.batidoIngredients = [...needed];
+        while (this.batidoIngredients.length < numIngredients) {
+            const val = Math.floor(Math.random() * 7) + 1;
+            this.batidoIngredients.push(val);
+        }
+
+        // Mezclar
+        this.batidoIngredients.sort(() => Math.random() - 0.5);
+        this.renderBatido();
+    }
+    renderBatido() {
+        const currentSum = Array.from(this.batidoSelected).reduce((a, b) => a + b, 0);
+        const colors = ['#ef4444', '#f59e0b', '#22c55e', '#3b82f6', '#a855f7', '#ec4899'];
+
+        const ingredientsHTML = this.batidoIngredients.map((num, idx) => {
+            const isSelected = this.batidoSelected.has(num);
+            const color = colors[idx % colors.length];
+            return `
+                <button onclick="toggleBatidoIngredient(${num})" 
+                    class="animate-pop" 
+                    style="
+                        background: ${isSelected ? color : 'white'};
+                        color: ${isSelected ? 'white' : color};
+                        border: 3px solid ${color};
+                        border-radius: 50%;
+                        width: 70px;
+                        height: 70px;
+                        font-size: 1.5rem;
+                        font-weight: 800;
+                        cursor: pointer;
+                        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                        transition: all 0.2s;
+                    ">${num}</button>
+            `;
+        }).join('');
+
+        this.elements.exerciseContainer.innerHTML = `
+            <div class="flex-column items-center justify-center gap-4 animate-pop" style="width:100%;">
+                <div style="text-align:center;">
+                    <div style="font-size:1rem; color:#64748b; margin-bottom:0.5rem;">🥤 Crea un batido de valor:</div>
+                    <div class="number-box-giant" style="color:#a855f7;">${this.batidoTarget}</div>
+                </div>
+                
+                <div style="background:white; padding:1rem; border-radius:20px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                    <div style="font-size:0.9rem; color:#64748b; margin-bottom:1rem; text-align:center;">Selecciona ingredientes:</div>
+                    <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:1rem;">
+                        ${ingredientsHTML}
+                    </div>
+                </div>
+                
+                <div style="background:#fef3c7; padding:1rem 2rem; border-radius:12px; border:2px solid #f59e0b;">
+                    <span style="font-size:1rem; color:#78350f;">Suma actual: </span>
+                    <span style="font-size:1.8rem; font-weight:800; color:#f59e0b;">${currentSum}</span>
+                </div>
+            </div>`;
+        this.elements.instruction.innerText = "Selecciona números que sumen el objetivo";
+    }
+    toggleBatidoIngredient(num) {
+        if (this.roundFinished) return;
+        if (this.batidoSelected.has(num)) {
+            this.batidoSelected.delete(num);
+        } else {
+            this.batidoSelected.add(num);
+        }
+        this.renderBatido();
+        this.playSound('tick');
+
+        // Auto-check si alcanza el objetivo
+        const currentSum = Array.from(this.batidoSelected).reduce((a, b) => a + b, 0);
+        if (currentSum === this.batidoTarget) {
+            setTimeout(() => this.handleFeedback(true), 300);
+        }
+    }
+
+    handleDice(id) {
+        if (this.isRolling[id]) return;
+        this.isRolling[id] = true;
+        const slot = document.getElementById(`dice-slot-${id}`);
+        slot.classList.add('dice-rolling');
+        setTimeout(() => {
+            // Constrain second dice for Subtraction to prevent negatives
+            let limit = undefined;
+            if (this.gameMode === 'restas' && id === 2 && this.val1 !== null) {
+                limit = this.val1;
+            }
+
+            const val = this.getRandomNumber(limit);
+            if (id === 1) this.val1 = val; else this.val2 = val;
+            slot.innerHTML = val;
+            slot.classList.remove('dice-rolling');
+            this.isRolling[id] = false;
+
+            // If we rerolled Dice 1 in subtraction and it's now smaller than Dice 2, reset Dice 2
+            if (this.gameMode === 'restas' && id === 1 && this.val2 !== null && this.val1 < this.val2) {
+                this.val2 = null;
+                document.getElementById('dice-slot-2').innerHTML = '❓';
+            }
+
+            if (this.val1 && this.val2) this.renderStandard();
+        }, 600);
+    }
+
+    renderStandard() {
+        let visualHTML = "";
+        if (this.showSticksIA) {
+            visualHTML = `
+                <div class="flex-row items-center justify-center gap-6 mt-6 animate-pop">
+                    ${this.getSticks(this.val1, '#ef4444')}
+                    <div class="text-4xl opacity-50 font-bold">${this.gameMode === 'sumas' ? '+' : '-'}</div>
+                    ${this.getSticks(this.val2, '#3b82f6')}
+                </div>
+            `;
+        }
+
+        this.elements.exerciseContainer.innerHTML = `
+            <div class="flex-column items-center justify-center gap-4 animate-pop">
+                <div class="flex-row items-center justify-center gap-4" style="font-size:3rem;">
+                    ${this.colorDigit(this.val1)} 
+                    ${this.gameMode === 'sumas' ? '+' : '-'} 
+                    ${this.colorDigit(this.val2)} 
+                    = 
+                    <span style="color:#475569">${this.userInputValue || '?'}</span>
+                </div>
+                ${visualHTML}
+            </div>`;
+    }
+
+    colorDigit(n) {
+        if (n === null || n === undefined) return '';
+        const s = n.toString();
+        if (s.length === 1) return `<span style="color:#3b82f6">${s}</span>`; // Units Blue
+        if (s.length === 2) return `<span style="color:#ef4444">${s[0]}</span><span style="color:#3b82f6">${s[1]}</span>`; // Tens Red
+        return s;
+    }
+
+    toggleSticksIA() {
+        this.showSticksIA = !this.showSticksIA;
+        const btn = document.getElementById('toggle-sticks');
+        if (btn) {
+            btn.innerText = `APOYO: ${this.showSticksIA ? 'ON' : 'OFF'}`;
+            btn.classList.toggle('btn-active', this.showSticksIA);
+        }
+        if (this.gameMode === 'sumas' || this.gameMode === 'restas') this.renderStandard();
+    }
+
+    // --- Logic ---
+    pressNum(n) {
+        if (this.roundFinished) return;
+
+        if (this.gameMode === 'bloques' && this.activeField) {
+            if (this.lectInputs[this.activeField].length < 3) {
+                this.lectInputs[this.activeField] += n;
+                this.renderBloques();
+            }
+        } else if (this.gameMode === 'antpost' && this.activeAntPost) {
+            this.antPostInputs[this.activeAntPost] += n;
+            this.renderAntPost();
+        } else if (this.gameMode === 'vecinos' && this.activeVecino) {
+            this.vecinosInputs[this.activeVecino] += n;
+            this.renderVecinos();
+        } else {
+            this.userInputValue += n;
+            if (this.gameMode === 'sumas' || this.gameMode === 'restas') this.renderStandard();
+            else if (this.gameMode === 'lectura') this.renderLectura();
+            else if (this.gameMode === 'comparar') this.renderComparar();
+            else if (this.gameMode === 'puzzle') this.renderPuzzle();
+        }
+        this.playSound('tick');
+    }
+
+    backspace() {
+        if (this.gameMode === 'bloques' && this.activeField) {
+            this.lectInputs[this.activeField] = this.lectInputs[this.activeField].slice(0, -1);
+            this.renderBloques();
+        } else if (this.gameMode === 'antpost' && this.activeAntPost) {
+            this.antPostInputs[this.activeAntPost] = this.antPostInputs[this.activeAntPost].slice(0, -1);
+            this.renderAntPost();
+        } else if (this.gameMode === 'vecinos' && this.activeVecino) {
+            this.vecinosInputs[this.activeVecino] = this.vecinosInputs[this.activeVecino].slice(0, -1);
+            this.renderVecinos();
+        } else {
+            this.userInputValue = this.userInputValue.slice(0, -1);
+            if (this.gameMode === 'sumas' || this.gameMode === 'restas') this.renderStandard();
+            else if (this.gameMode === 'lectura') this.renderLectura();
+            else if (this.gameMode === 'comparar') this.renderComparar();
+            else if (this.gameMode === 'puzzle') this.renderPuzzle();
+        }
+    }
+
+    checkAnswer() {
+        let expected;
+        if (this.gameMode === 'sumas') expected = this.val1 + this.val2;
+        else if (this.gameMode === 'restas') expected = this.val1 - this.val2;
+        else if (this.gameMode === 'lectura') expected = this.val1;
+
+        if (expected !== undefined) {
+            this.handleFeedback(parseInt(this.userInputValue) === expected);
+            return;
+        }
+
+        // Expanded Checks
+        if (this.gameMode === 'bloques') {
+            const d = Math.floor(this.val1 / 10), u = this.val1 % 10;
+            const ok = (parseInt(this.lectInputs.pures) === d && parseInt(this.lectInputs.units) === u && parseInt(this.lectInputs.total) === this.val1);
+            this.handleFeedback(ok);
+        } else if (this.gameMode === 'representa') {
+            const ok = (this.userBlocks.tens * 10 + this.userBlocks.units === this.val1);
+            this.handleFeedback(ok);
+        } else if (this.gameMode === 'antpost') {
+            const before = parseInt(this.antPostInputs.before);
+            const after = parseInt(this.antPostInputs.after);
+            this.handleFeedback(before === (this.val1 - 1) && after === (this.val1 + 1));
+        } else if (this.gameMode === 'vecinos') {
+            const before = parseInt(this.vecinosInputs.before);
+            const after = parseInt(this.vecinosInputs.after);
+            this.handleFeedback(before === (this.val1 - 1) && after === (this.val1 + 1));
+        } else if (this.gameMode === 'puzzle') {
+            this.handleFeedback(parseInt(this.userInputValue) === this.puzzleAnswer);
+        }
+    }
+
+    checkComparison(symbol) {
+        const correct = this.val1 < this.val2 ? '<' : (this.val1 > this.val2 ? '>' : '=');
+        this.handleFeedback(symbol === correct);
+    }
+
+    handleFeedback(ok) {
+        if (ok) {
+            this.score += 10;
+            this.elements.score.innerText = this.score;
+            this.elements.instruction.innerText = "¡Excelente! ✨";
+            this.roundFinished = true;
+            this.playSound('applause');
+        } else {
+            this.elements.instruction.innerText = "¡Inténtalo de nuevo! 💡";
+            this.playSound('fail');
+        }
+        this.reportToPortal(ok);
+    }
+
+    reportToPortal(ok) {
+        window.parent.postMessage({ type: 'UPDATE_SCORE_DETAILED', app: 'mate', activity: this.gameMode, ok: ok, score: this.score }, '*');
+    }
+
+    getRandomNumber(limit) {
+        let max = this.currentDifficulty === 1 ? 10 : (this.currentDifficulty === 2 ? 50 : 100);
+        if (limit !== undefined) {
+            max = Math.min(max, limit);
+        }
+        return Math.floor(Math.random() * max) + 1;
+    }
+
+    // --- Helper for Colors ---
+    // --- Helper for Colors ---
     getColoredWord(n) {
         const units = ["cero", "uno", "dos", "tres", "cuatro", "cinco", "seis", "siete", "ocho", "nueve"];
-        const teens = ["diez", "once", "doce", "trece", "catorce", "quince", "dieciséis", "diecisiete", "dieciocho", "diecinueve"];
+        const special10_15 = ["diez", "once", "doce", "trece", "catorce", "quince"];
         const tens = ["", "diez", "veinte", "treinta", "cuarenta", "cincuenta", "sesenta", "setenta", "ochenta", "noventa"];
-        if (n < 10) return `<span class="word-units">${units[n]}</span>`;
-        if (n === 100) return `<span class="word-tens">cien</span>`;
-        let d = Math.floor(n / 10), u = n % 10;
-        if (d === 1) return (u <= 5) ? `<span class="word-tens">${teens[u]}</span>` : `<span class="word-tens">dieci</span><span class="word-units">${units[u]}</span>`;
-        if (d === 2) { const accents = { 2: "dós", 3: "trés", 6: "séis" }; if (u === 0) return `<span class="word-tens">veinte</span>`; return `<span class="word-tens">veinti</span><span class="word-units">${accents[u] || units[u]}</span>`; }
-        return `<span class="word-tens">${tens[d]}</span>${u > 0 ? ` y <span class="word-units">${units[u]}</span>` : ''}`;
+
+        if (n < 10) return `<span style="color:#3b82f6">${units[n]}</span>`; // Blue
+
+        if (n >= 10 && n <= 15) return `<span style="color:#ef4444">${special10_15[n - 10]}</span>`; // Red
+
+        if (n >= 16 && n <= 19) {
+            let word = "dieci" + units[n - 10];
+            if (n === 16) word = "dieciséis";
+            return `<span style="color:#ef4444">${word}</span>`;
+        }
+
+        if (n === 20) return `<span style="color:#ef4444">veinte</span>`;
+
+        if (n >= 21 && n <= 29) {
+            let word = "veinti" + units[n - 20];
+            if (n === 22) word = "veintidós";
+            if (n === 23) word = "veintitrés";
+            if (n === 26) word = "veintiséis";
+            return `<span style="color:#ef4444">${word}</span>`;
+        }
+
+        if (n >= 30) {
+            const tenVal = Math.floor(n / 10);
+            const unitVal = n % 10;
+            if (unitVal === 0) return `<span style="color:#ef4444">${tens[tenVal]}</span>`;
+            return `<span style="color:#ef4444">${tens[tenVal]}</span> y <span style="color:#3b82f6">${units[unitVal]}</span>`;
+        }
+
+        if (n === 100) return `<span style="color:#ef4444">cien</span>`;
+
+        return n.toString();
     }
 
-    toggleSticks() {
-        this.showSticksIA = !this.showSticksIA;
-        this.elements.toggleSticks.innerText = `APOYO: ${this.showSticksIA ? 'ON' : 'OFF'}`;
-        if (this.val1 && this.val2) this.renderStandard();
-    }
-
-    async getStory() {
-        if (!this.val1 || !this.val2) return;
-        this.elements.geminiModal.style.display = 'flex';
-        this.elements.iaResponseText.innerText = "El Mago está pensando...";
-        // Call internal or external API logic used to be here
-        // If user provides key they can use it, otherwise this function is decorative or needs key
-        if (!this.apiKey) { this.elements.iaResponseText.innerText = "Configura la API Key en app.js para cuentos."; return; }
-        // ... (AI Logic removed as per request to 'remove fun without internet', but keeping the button hook just incase user adds key later manually)
-    }
-
-    // --- Pizarra ---
     initPizarra() {
-        this.drawing = false;
-        if (!this.elements.canvas) return;
-        const getP = (e) => { const r = this.elements.canvas.getBoundingClientRect(); const x = (e.touches ? e.touches[0].clientX : e.clientX) - r.left; const y = (e.touches ? e.touches[0].clientY : e.clientY) - r.top; return { x, y }; };
-        const start = (e) => { if (e.touches) e.preventDefault(); this.drawing = true; this.elements.ctx.beginPath(); const p = getP(e); this.elements.ctx.moveTo(p.x, p.y); };
-        const move = (e) => { if (e.touches) e.preventDefault(); if (!this.drawing) return; const p = getP(e); this.elements.ctx.lineTo(p.x, p.y); this.elements.ctx.stroke(); };
-        const end = () => this.drawing = false;
-        this.elements.canvas.addEventListener('mousedown', start);
-        this.elements.canvas.addEventListener('mousemove', move);
-        window.addEventListener('mouseup', end);
-        this.elements.canvas.addEventListener('touchstart', start, { passive: false });
-        this.elements.canvas.addEventListener('touchmove', move, { passive: false });
-        window.addEventListener('touchend', end);
+        if (!this.elements.canvas || !this.elements.ctx) return;
+        this.resizeCanvas();
+
+        this.isDrawing = false;
+        this.lastX = 0;
+        this.lastY = 0;
+
+        const canvas = this.elements.canvas;
+        const ctx = this.elements.ctx;
+
+        ctx.strokeStyle = '#2563eb';
+        ctx.lineJoin = 'round';
+        ctx.lineCap = 'round';
+        ctx.lineWidth = 4;
+
+        // Mouse Events
+        canvas.addEventListener('mousedown', (e) => {
+            this.isDrawing = true;
+            [this.lastX, this.lastY] = [e.offsetX, e.offsetY];
+        });
+        canvas.addEventListener('mousemove', (e) => this.draw(e));
+        canvas.addEventListener('mouseup', () => this.isDrawing = false);
+        canvas.addEventListener('mouseout', () => this.isDrawing = false);
+
+        // Touch Events
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            this.isDrawing = true;
+            const rect = canvas.getBoundingClientRect();
+            this.lastX = e.touches[0].clientX - rect.left;
+            this.lastY = e.touches[0].clientY - rect.top;
+        }, { passive: false });
+
+        canvas.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            this.draw(e.touches[0]);
+        }, { passive: false });
+        canvas.addEventListener('touchend', () => this.isDrawing = false);
     }
+
+    draw(e) {
+        if (!this.isDrawing) return;
+        const ctx = this.elements.ctx;
+        const canvas = this.elements.canvas;
+
+        let x = e.offsetX;
+        let y = e.offsetY;
+
+        // Handle Touch coordinates
+        if (x === undefined) {
+            const rect = canvas.getBoundingClientRect();
+            x = e.clientX - rect.left;
+            y = e.clientY - rect.top;
+        }
+
+        ctx.beginPath();
+        ctx.moveTo(this.lastX, this.lastY);
+        ctx.lineTo(x, y);
+        ctx.stroke();
+        [this.lastX, this.lastY] = [x, y];
+    }
+
     resizeCanvas() {
         if (!this.elements.canvas) return;
-        const parent = this.elements.canvas.parentElement;
-        if (parent) {
-            this.elements.canvas.width = parent.clientWidth;
-            this.elements.canvas.height = parent.clientHeight;
+        const canvas = this.elements.canvas;
+        // Save current content
+        // const tempCanvas = document.createElement('canvas');
+        // tempCanvas.width = canvas.width;
+        // tempCanvas.height = canvas.height;
+        // tempCanvas.getContext('2d').drawImage(canvas, 0, 0);
+
+        canvas.width = canvas.offsetWidth;
+        canvas.height = canvas.offsetHeight;
+
+        // Restore properties after resize reset
+        if (this.elements.ctx) {
+            this.elements.ctx.strokeStyle = '#2563eb';
+            this.elements.ctx.lineWidth = 4;
             this.elements.ctx.lineCap = 'round';
-            this.elements.ctx.lineWidth = 5;
-            this.elements.ctx.strokeStyle = '#475569';
         }
     }
-    clearCanvas() { if (this.elements.ctx) this.elements.ctx.clearRect(0, 0, this.elements.canvas.width, this.elements.canvas.height); }
 
-    playSound(t) {
-        if (!window.AudioContext && !window.webkitAudioContext) return;
-        const a = new (window.AudioContext || window.webkitAudioContext)();
-        const o = a.createOscillator(); const g = a.createGain(); o.connect(g); g.connect(a.destination);
-        if (t === 'tick') { o.frequency.value = 600; g.gain.exponentialRampToValueAtTime(0.01, a.currentTime + 0.1); o.start(); o.stop(a.currentTime + 0.1); }
-        else if (t === 'applause') { o.frequency.value = 523; g.gain.exponentialRampToValueAtTime(0.01, a.currentTime + 0.6); o.start(); o.stop(a.currentTime + 0.6); }
-        else { o.frequency.value = 150; g.gain.exponentialRampToValueAtTime(0.01, a.currentTime + 0.3); o.start(); o.stop(a.currentTime + 0.3); }
+    clearCanvas() {
+        if (this.elements.ctx) {
+            this.elements.ctx.clearRect(0, 0, this.elements.canvas.width, this.elements.canvas.height);
+        }
     }
 
-    // Stub for readText if needed
-    readText(t) { }
+    playSound(t) {
+        // Sonidos desactivados por ahora
+    }
 }
+
 
 const app = new MathApp();

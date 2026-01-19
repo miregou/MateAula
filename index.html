@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MateAula Pro - Edición Mireia v8.0</title>
+    <title>Nexia: Mates - Pizarra Multiactividad</title>
     <link rel="stylesheet" href="css/styles.css?v=8.3">
 </head>
 
@@ -12,12 +12,15 @@
     <div id="app">
         <!-- VISTA MENÚ -->
         <div id="view-menu" class="view active">
-            <div class="app-header">
+            <div class="app-header"
+                style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 2rem 1rem;">
                 <div class="header-top">
-                    <button class="btn-curriculum" onclick="openCurriculumModal()">📋 Currículo</button>
+                    <button class="btn-curriculum" onclick="openCurriculumModal()"
+                        style="background: white; color: #764ba2; border: 2px solid white; font-weight: bold;">📋
+                        Currículo</button>
                 </div>
-                <h1 class="app-title">MATEAULA 🏫</h1>
-                <p class="app-subtitle">PIZARRA TÁCTICA MULTIACTIVIDAD</p>
+                <h1 class="app-title" style="color: white; text-shadow: 2px 2px 4px rgba(0,0,0,0.2);">🔢 MATEAULA ➕</h1>
+                <p class="app-subtitle" style="color: rgba(255,255,255,0.95);">PIZARRA TÁCTIL DE MATEMÁTICAS</p>
             </div>
             <div class="menu-grid">
                 <!-- Tarjetas de Menú -->
@@ -146,8 +149,7 @@
                 <div class="flex items-center gap-2">
                     <button onclick="goToMenu()" class="btn-nav">🏠 MENÚ</button>
                     <button class="btn-curriculum-game btn-nav" onclick="openCurriculumModal()">📋 Currículo</button>
-                    <button onclick="readInstructionIA()" class="gemini-btn btn-nav" title="Requiere Internet">✨
-                        LEER</button>
+                    <!-- Botón de Apoyo Visual (Sticks) - Se muestra vía JS en actividades soportadas -->
                     <button id="toggle-sticks" onclick="toggleSticksIA()" class="btn-nav hidden"
                         style="font-size:9px;">APOYO: ON</button>
                 </div>
@@ -164,6 +166,8 @@
                     <button onclick="setDifficulty(3)" id="diff-3" class="difficulty-btn">N3</button>
                 </div>
                 <div class="score-badge">
+                    <button onclick="openConfigModal()" class="btn-nav" style="padding:2px 6px; margin-right:4px;"
+                        title="Configuración">⚙️</button>
                     <button onclick="resetRound()" class="btn-nav"
                         style="padding:2px 6px; margin-right:4px;">🔄</button>
                     <div>⭐ <span id="score">0</span></div>
@@ -198,11 +202,22 @@
                             <button onclick="pressNum(0)" class="keypad-btn">0</button>
                             <button onclick="checkAnswerIA()" id="check-btn" class="keypad-btn btn-ok">OK</button>
                         </div>
-                        <div id="symbol-keypad" class="hidden symbol-grid">
-                            <button onclick="checkComparisonIA('<')" class="keypad-btn" id="btn-lt"></button>
-                            <button onclick="checkComparisonIA('=')" class="keypad-btn text-2xl"
-                                style="color:var(--success); font-weight:bold;">=</button>
-                            <button onclick="checkComparisonIA('>')" class="keypad-btn" id="btn-gt"></button>
+                        <div id="symbol-keypad" class="hidden symbol-grid" style="gap:1.5rem;">
+                            <!-- LESS THAN: Blue -->
+                            <button onclick="checkComparison('<')" class="keypad-btn text-5xl" id="btn-lt"
+                                style="color:var(--primary); font-weight:800; font-size:4rem;">&lt;</button>
+
+                            <!-- EQUAL: Green -->
+                            <button onclick="checkComparison('=')" class="keypad-btn text-5xl"
+                                style="color:var(--success); font-weight:800; font-size:4rem;">=</button>
+
+                            <!-- GREATER THAN: Red + Crocodile -->
+                            <button onclick="checkComparison('>')"
+                                class="keypad-btn flex-col items-center justify-center p-0" id="btn-gt"
+                                style="color:var(--error); font-weight:800; line-height:1; gap:0;">
+                                <span style="font-size:4rem;">&gt;</span>
+                                <span style="font-size:2rem; margin-top:-10px;">🐊</span>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -238,6 +253,18 @@
             </div>
 
             <button onclick="closeCurriculumModal()" class="btn-close-modal">CERRAR</button>
+        </div>
+    </div>
+
+    <!-- MODAL CONFIGURACIÓN ACTIVIDAD (Dinámico) -->
+    <div id="config-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-content">
+            <h3 id="config-title">⚙️ Configuración</h3>
+            <div id="config-options">
+                <!-- Se carga vía JS -->
+            </div>
+            <button onclick="closeConfigModal()" class="btn-game-action w-full" style="margin-top:1rem;">APLICAR Y
+                EMPEZAR ✨</button>
         </div>
     </div>
 

@@ -26,7 +26,7 @@
 
     /* Spacing & Sizes */
     --radius-sm: 0.5rem;
-    --radius-md: 1rem;
+    --radius-md: 0.75rem;
     --radius-full: 9999px;
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
     --shadow-card: 0 6px 0 var(--neutral-300);
@@ -111,19 +111,21 @@ body {
     border-bottom: 4px solid var(--secondary-dark);
     text-align: center;
     box-shadow: var(--shadow-sm);
+    flex-shrink: 0;
 }
 
 .app-title {
-    font-size: 2rem;
+    font-size: 1.8rem;
     font-weight: 800;
     margin: 0;
     color: var(--secondary-dark);
     letter-spacing: -0.05em;
+    line-height: 1.2;
 }
 
 .app-subtitle {
-    margin: 0.25rem 0 0;
-    font-size: 0.75rem;
+    margin: 0;
+    font-size: 0.7rem;
     font-weight: 700;
     color: var(--secondary-dark);
     letter-spacing: 0.1em;
@@ -132,20 +134,24 @@ body {
 
 .menu-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-    gap: 1rem;
-    padding: 1.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    grid-auto-rows: minmax(100px, 1fr);
+    gap: 0.75rem;
+    padding: 1rem;
     overflow-y: auto;
+    flex: 1;
+    align-content: start;
 }
 
 .menu-card {
     background: var(--white);
     border-radius: var(--radius-md);
-    padding: 1.5rem;
+    padding: 0.75rem;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 1rem;
+    justify-content: center;
+    gap: 0.5rem;
     cursor: pointer;
     border: 3px solid transparent;
     box-shadow: var(--shadow-card);
@@ -164,14 +170,16 @@ body {
 }
 
 .icon-box svg {
-    width: 50px;
-    height: 50px;
+    width: 40px;
+    height: 40px;
 }
 
 .menu-title {
     font-weight: 700;
     text-transform: uppercase;
-    font-size: 0.9rem;
+    font-size: 0.8rem;
+    text-align: center;
+    line-height: 1.1;
 }
 
 
@@ -249,10 +257,12 @@ body {
 .main-layout {
     display: grid;
     grid-template-columns: 1.2fr 0.8fr;
-    gap: 1rem;
-    padding: 1rem;
+    gap: 0.75rem;
+    padding: 0.75rem;
     flex: 1;
     overflow: hidden;
+    min-height: 0;
+    /* Crucial for scrolling inside nested flex/grid */
 }
 
 .layout-fullscreen {
@@ -431,7 +441,7 @@ body {
     display: grid;
     grid-template-columns: repeat(6, 1fr);
     grid-template-rows: repeat(2, 1fr);
-    gap: 8px;
+    gap: 6px;
     height: 100%;
 }
 
@@ -475,23 +485,23 @@ body {
 
 /* --- GAME ELEMENTS --- */
 .number-box {
-    font-size: 4rem;
+    font-size: 3rem;
     font-weight: 800;
     line-height: 1;
-    min-width: 60px;
+    min-width: 50px;
     text-align: center;
 }
 
 .number-box-giant {
-    font-size: 6rem;
+    font-size: 4.5rem;
     font-weight: 800;
 }
 
 .op-symbol {
-    font-size: 3rem;
+    font-size: 2.5rem;
     color: var(--neutral-300);
     font-weight: 700;
-    margin: 0 1rem;
+    margin: 0 0.5rem;
 }
 
 .hundreds {
@@ -944,4 +954,130 @@ body {
     opacity: 0.5;
     cursor: not-allowed !important;
     pointer-events: none;
+}
+
+/* --- CONFIG MODAL (Camino/Puzzle) --- */
+.config-group {
+    background: var(--off-white);
+    padding: 1rem;
+    border-radius: var(--radius-md);
+    margin-bottom: 1rem;
+    border: 2px solid var(--neutral-100);
+}
+
+.config-group-title {
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: var(--primary-dark);
+    margin-bottom: 0.75rem;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.config-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.config-btn {
+    flex: 1;
+    min-width: 80px;
+    padding: 0.6rem 0.4rem;
+    background: white;
+    border: 2px solid var(--neutral-100);
+    border-radius: var(--radius-sm);
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+}
+
+.config-btn:hover {
+    border-color: var(--primary-light);
+}
+
+.config-btn.active {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary-dark);
+    box-shadow: 0 4px 0 var(--primary-dark);
+    transform: translateY(-2px);
+}
+
+.config-input-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.config-number-input {
+    width: 60px;
+    padding: 0.5rem;
+    border: 2px solid var(--neutral-100);
+    border-radius: var(--radius-sm);
+    font-weight: 700;
+    text-align: center;
+}
+
+/* Ajustes dinámicos para el camino */
+.camino-wrapper {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+}
+
+.camino-grid {
+    display: grid;
+    gap: 8px;
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.camino-btn {
+    aspect-ratio: 1;
+    min-width: 40px;
+    border-radius: 50%;
+    border: 3px solid var(--neutral-100);
+    background: white;
+    font-weight: 800;
+    font-size: 1.2rem;
+    cursor: pointer;
+    box-shadow: 0 4px 0 var(--neutral-100);
+    transition: all 0.1s;
+}
+
+.camino-btn:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 var(--neutral-100);
+}
+
+.camino-btn.active-path {
+    background: var(--success);
+    color: white;
+    border-color: #15803d;
+    box-shadow: 0 4px 0 #15803d;
+}
+
+.camino-btn.target-path {
+    background: var(--secondary-light);
+    border-color: var(--secondary);
+    box-shadow: 0 4px 0 var(--secondary);
+}
+
+.camino-info {
+    margin-top: 1rem;
+    background: white;
+    padding: 0.5rem 1.5rem;
+    border-radius: var(--radius-full);
+    border: 2px solid var(--primary-light);
+    font-weight: 800;
 }
