@@ -96,6 +96,36 @@ class MathApp {
         window.openConfigModal = () => this.openConfigModal();
         window.closeConfigModal = () => this.closeConfigModal();
         window.setConfig = (key, val) => this.setConfig(key, val);
+        window.openCurriculumModal = () => this.openCurriculumModal();
+        window.closeCurriculumModal = () => this.closeCurriculumModal();
+    }
+
+    openCurriculumModal() {
+        const modal = document.getElementById('curriculum-modal');
+        const list = document.getElementById('curriculum-list');
+        if (!modal || !list) return;
+
+        // Content for the curriculum
+        const objectives = [
+            "<strong>Sentencia Numérico:</strong> Contar, ordenar y comparar números hasta el 99.",
+            "<strong>Cálculo:</strong> Estrategias de suma y resta (fases de la tabla).",
+            "<strong>Sentido Espacial:</strong> Orientación en el plano y recorridos.",
+            "<strong>Medida:</strong> El reloj (en punto e y media) y estimación temporal.",
+            "<strong>Lógica:</strong> Series, clasificación y resolución de problemas."
+        ];
+
+        list.innerHTML = objectives.map(obj =>
+            `<div class="curriculum-item" style="margin-bottom:10px; padding:10px; background:#f8fafc; border-radius:8px; border-left:4px solid var(--primary);">
+                ${obj}
+            </div>`
+        ).join('');
+
+        modal.style.display = 'flex';
+    }
+
+    closeCurriculumModal() {
+        const modal = document.getElementById('curriculum-modal');
+        if (modal) modal.style.display = 'none';
     }
 
     startActivity(mode) {

@@ -411,6 +411,7 @@ body {
         position: relative;
         margin-bottom: 0.5rem;
         overflow: hidden;
+        touch-action: none;
         min-height: 0;
     }
 
