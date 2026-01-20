@@ -1079,6 +1079,10 @@ class MathApp {
         const canvas = this.elements.canvas;
         const ctx = this.elements.ctx;
 
+        // Ensure canvas has pointer events enabled
+        canvas.style.pointerEvents = 'auto';
+        canvas.style.cursor = 'crosshair';
+
         ctx.strokeStyle = '#2563eb';
         ctx.lineJoin = 'round';
         ctx.lineCap = 'round';
@@ -1086,12 +1090,27 @@ class MathApp {
 
         // Mouse Events
         canvas.addEventListener('mousedown', (e) => {
+            e.preventDefault();
             this.isDrawing = true;
+            canvas.style.cursor = 'crosshair';
             [this.lastX, this.lastY] = [e.offsetX, e.offsetY];
         });
-        canvas.addEventListener('mousemove', (e) => this.draw(e));
-        canvas.addEventListener('mouseup', () => this.isDrawing = false);
-        canvas.addEventListener('mouseout', () => this.isDrawing = false);
+
+        canvas.addEventListener('mousemove', (e) => {
+            if (this.isDrawing) {
+                this.draw(e);
+            }
+        });
+
+        canvas.addEventListener('mouseup', () => {
+            this.isDrawing = false;
+            canvas.style.cursor = 'crosshair';
+        });
+
+        canvas.addEventListener('mouseleave', () => {
+            this.isDrawing = false;
+            canvas.style.cursor = 'crosshair';
+        });
 
         // Touch Events
         canvas.addEventListener('touchstart', (e) => {
@@ -1104,9 +1123,14 @@ class MathApp {
 
         canvas.addEventListener('touchmove', (e) => {
             e.preventDefault();
-            this.draw(e.touches[0]);
+            if (this.isDrawing) {
+                this.draw(e.touches[0]);
+            }
         }, { passive: false });
-        canvas.addEventListener('touchend', () => this.isDrawing = false);
+
+        canvas.addEventListener('touchend', () => {
+            this.isDrawing = false;
+        });
     }
 
     draw(e) {
