@@ -88,7 +88,7 @@ class MathApp {
     initPizarraWhenReady() {
         setTimeout(() => {
             if (this.elements.canvas) {
-                this.initPizarra();
+                this.initCanvas();
                 console.log('✅ Pizarra inicializada correctamente');
             } else {
                 console.warn('⚠️ Canvas no encontrado, reintentando...');
@@ -1029,120 +1029,83 @@ class MathApp {
         return n.toString();
     }
 
-    initPizarra() {
-        if (!this.elements.canvas || !this.elements.ctx) return;
-        this.resizeCanvas();
-
-        this.isDrawing = false;
-        this.lastX = 0;
-        this.lastY = 0;
-
+    initCanvas() {
         const canvas = this.elements.canvas;
-        const ctx = this.elements.ctx;
+        if (!canvas) return;
 
-        // Ensure canvas has pointer events enabled
-        canvas.style.pointerEvents = 'auto';
-        canvas.style.cursor = 'crosshair';
+        canvas.addEventListener('mousedown', (e) => this.startDrawing(e));
+        canvas.addEventListener('mousemove', (e) => this.draw(e));
+        canvas.addEventListener('mouseup', () => this.stopDrawing());
+        canvas.addEventListener('mouseout', () => this.stopDrawing());
 
-        ctx.strokeStyle = '#2563eb';
-        ctx.lineJoin = 'round';
-        ctx.lineCap = 'round';
-        ctx.lineWidth = 4;
-
-        // Mouse Events
-        canvas.addEventListener('mousedown', (e) => {
-            e.preventDefault();
-            this.isDrawing = true;
-            canvas.style.cursor = 'crosshair';
-            [this.lastX, this.lastY] = [e.offsetX, e.offsetY];
-            console.log('🖱️ MOUSEDOWN -', 'Drawing:', this.isDrawing, 'Pos:', this.lastX, this.lastY);
-        });
-
-        canvas.addEventListener('mousemove', (e) => {
-            if (this.isDrawing) {
-                console.log('🖱️ MOUSEMOVE - Drawing line');
-                this.draw(e);
-            }
-        });
-
-        canvas.addEventListener('mouseup', () => {
-            this.isDrawing = false;
-            canvas.style.cursor = 'crosshair';
-            console.log('🖱️ MOUSEUP - Drawing stopped');
-        });
-
-        canvas.addEventListener('mouseleave', () => {
-            this.isDrawing = false;
-            canvas.style.cursor = 'crosshair';
-            console.log('🖱️ MOUSELEAVE - Drawing stopped');
-        });
-
-        // Touch Events
+        // Touch events
         canvas.addEventListener('touchstart', (e) => {
             e.preventDefault();
-            this.isDrawing = true;
-            const rect = canvas.getBoundingClientRect();
-            this.lastX = e.touches[0].clientX - rect.left;
-            this.lastY = e.touches[0].clientY - rect.top;
+            this.startDrawing(e.touches[0]);
         }, { passive: false });
-
         canvas.addEventListener('touchmove', (e) => {
             e.preventDefault();
-            if (this.isDrawing) {
-                this.draw(e.touches[0]);
-            }
+            this.draw(e.touches[0]);
         }, { passive: false });
+        canvas.addEventListener('touchend', () => this.stopDrawing());
 
-        canvas.addEventListener('touchend', () => {
-            this.isDrawing = false;
-        });
+        this.resizeCanvas();
+    }
+
+    resizeCanvas() {
+        const canvas = this.elements.canvas;
+        if (!canvas) return;
+
+        const wrapper = canvas.parentElement;
+        if (!wrapper) return;
+
+        const rect = wrapper.getBoundingClientRect();
+        canvas.width = rect.width;
+        canvas.height = rect.height;
+
+        const ctx = this.elements.ctx;
+        if (ctx) {
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.lineWidth = 4;
+            ctx.strokeStyle = '#2563eb';
+        }
+    }
+
+    startDrawing(e) {
+        this.isDrawing = true;
+        const rect = this.elements.canvas.getBoundingClientRect();
+        this.lastX = e.clientX - rect.left;
+        this.lastY = e.clientY - rect.top;
     }
 
     draw(e) {
         if (!this.isDrawing) return;
+
         const ctx = this.elements.ctx;
-        const canvas = this.elements.canvas;
-
-        let x = e.offsetX;
-        let y = e.offsetY;
-
-        // Handle Touch coordinates
-        if (x === undefined) {
-            const rect = canvas.getBoundingClientRect();
-            x = e.clientX - rect.left;
-            y = e.clientY - rect.top;
-        }
+        const rect = this.elements.canvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
 
         ctx.beginPath();
         ctx.moveTo(this.lastX, this.lastY);
         ctx.lineTo(x, y);
+        ctx.strokeStyle = '#2563eb';
         ctx.stroke();
-        [this.lastX, this.lastY] = [x, y];
+
+        this.lastX = x;
+        this.lastY = y;
     }
 
-    resizeCanvas() {
-        if (!this.elements.canvas) return;
-        const canvas = this.elements.canvas;
-        // Save current content
-        // const tempCanvas = document.createElement('canvas');
-        // tempCanvas.width = canvas.width;
-        // tempCanvas.height = canvas.height;
-        // tempCanvas.getContext('2d').drawImage(canvas, 0, 0);
-
-        canvas.width = canvas.offsetWidth;
-        canvas.height = canvas.offsetHeight;
-
-        // Restore properties after resize reset
-        if (this.elements.ctx) {
-            this.elements.ctx.strokeStyle = '#2563eb';
-            this.elements.ctx.lineWidth = 4;
-            this.elements.ctx.lineCap = 'round';
-        }
+    stopDrawing() {
+        this.isDrawing = false;
     }
 
     clearCanvas() {
-        if (this.elements.ctx) {
-            this.elements.ctx.clearRect(0, 0, this.elements.canvas.width, this.elements.canvas.height);
+        const canvas = this.elements.canvas;
+        const ctx = this.elements.ctx;
+        if (canvas && ctx) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
         }
     }
 
