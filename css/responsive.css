@@ -1,339 +1,54 @@
 /* ===== RESPONSIVE ADAPTATIONS FOR SMARTBOARDS/TABLETS ===== */
-/* Ultra-aggressive sizing to ensure NO OVERFLOW on classroom whiteboards */
+/* Softened adaptations: leveraging autoScaleForSmartboard JS scaling */
 
 @media screen and (max-height: 1080px) {
-    /* Full HD smartboards (1920x1080) - Aggressive */
-
     .game-header {
-        height: 34px;
-        padding: 0.12rem 0.5rem;
-    }
-
-    .btn-nav {
-        padding: 0.22rem 0.5rem;
-        font-size: 0.62rem;
-    }
-
-    .difficulty-btn {
-        padding: 0.15rem 0.4rem;
-        font-size: 0.54rem;
-    }
-
-    .score-badge {
-        font-size: 0.68rem;
-        padding: 0.15rem 0.4rem;
+        height: 60px;
     }
 
     .main-layout {
-        padding: 4px;
-        gap: 5px;
-    }
-
-    .instruction-pill {
-        padding: 0.18rem 0.65rem;
-        font-size: 0.65rem;
-        margin: 0.2rem auto;
-    }
-
-    #dice-section {
-        height: 42px;
-        padding-bottom: 0.2rem;
-    }
-
-    .dice-slot {
-        width: 36px;
-        height: 36px;
-    }
-
-    .dice-svg {
-        width: 32px;
-        height: 32px;
-    }
-
-    .dice-number {
-        font-size: 1.3rem;
+        padding: 10px;
+        gap: 15px;
     }
 
     #pizarra-container {
-        height: 55%;
-        margin-bottom: 3px;
-    }
-
-    #input-methods {
-        height: 45%;
-    }
-
-    .keypad-btn {
-        font-size: 0.95rem;
-    }
-
-    .number-box {
-        font-size: 1.9rem;
-    }
-
-    .number-box-giant {
-        font-size: 2.8rem;
-    }
-
-    .pizarra-label,
-    .btn-clear {
-        font-size: 0.58rem;
-        padding: 2px 4px;
-    }
-
-    .keypad-grid {
-        gap: 3px;
+        min-height: 250px;
     }
 }
 
 @media screen and (max-height: 900px) {
-    /* Compact smartboards - Very Aggressive */
-
     .game-header {
-        height: 32px;
-        padding: 0.1rem 0.45rem;
-    }
-
-    .btn-nav {
-        padding: 0.2rem 0.45rem;
-        font-size: 0.6rem;
-    }
-
-    .difficulty-btn {
-        padding: 0.12rem 0.35rem;
-        font-size: 0.5rem;
-    }
-
-    .score-badge {
-        font-size: 0.65rem;
-        padding: 0.12rem 0.35rem;
+        height: 50px;
     }
 
     .main-layout {
-        padding: 3px;
-        gap: 4px;
+        padding: 8px;
+        gap: 10px;
     }
 
     .instruction-pill {
-        padding: 0.15rem 0.55rem;
-        font-size: 0.6rem;
-        margin: 0.18rem auto;
-    }
-
-    #dice-section {
-        height: 38px;
-        padding-bottom: 0.15rem;
-    }
-
-    .dice-slot {
-        width: 32px;
-        height: 32px;
-    }
-
-    .dice-svg {
-        width: 28px;
-        height: 28px;
-    }
-
-    .dice-number {
         font-size: 1.2rem;
-    }
-
-    #pizarra-container {
-        height: 53%;
-        margin-bottom: 2px;
-    }
-
-    #input-methods {
-        height: 47%;
-    }
-
-    .keypad-btn {
-        font-size: 0.88rem;
-    }
-
-    .number-box {
-        font-size: 1.75rem;
-    }
-
-    .number-box-giant {
-        font-size: 2.6rem;
-    }
-
-    .pizarra-label,
-    .btn-clear {
-        font-size: 0.55rem;
-        padding: 1px 3px;
-    }
-
-    .keypad-grid {
-        gap: 2px;
+        padding: 0.8rem 1.5rem;
     }
 }
 
 @media screen and (max-height: 768px) {
-    /* Small screens - Ultra Aggressive */
-
     .game-header {
-        height: 30px;
-        padding: 0.08rem 0.4rem;
-    }
-
-    .btn-nav {
-        padding: 0.18rem 0.4rem;
-        font-size: 0.58rem;
-    }
-
-    .difficulty-btn {
-        padding: 0.1rem 0.32rem;
-        font-size: 0.48rem;
-    }
-
-    .score-badge {
-        font-size: 0.62rem;
-        padding: 0.1rem 0.32rem;
-    }
-
-    .main-layout {
-        padding: 2px;
-        gap: 3px;
-    }
-
-    .instruction-pill {
-        padding: 0.12rem 0.48rem;
-        font-size: 0.58rem;
-        margin: 0.15rem auto;
-    }
-
-    #dice-section {
-        height: 34px;
-        padding-bottom: 0.12rem;
-    }
-
-    .dice-slot {
-        width: 28px;
-        height: 28px;
-    }
-
-    .dice-svg {
-        width: 24px;
-        height: 24px;
-    }
-
-    .dice-number {
-        font-size: 1.05rem;
-    }
-
-    #pizarra-container {
-        height: 51%;
-        margin-bottom: 2px;
-    }
-
-    #input-methods {
-        height: 49%;
+        height: 45px;
     }
 
     .keypad-btn {
-        font-size: 0.8rem;
-    }
-
-    .number-box {
-        font-size: 1.6rem;
-    }
-
-    .number-box-giant {
-        font-size: 2.4rem;
-    }
-
-    .pizarra-label,
-    .btn-clear {
-        font-size: 0.52rem;
-        padding: 1px 3px;
-    }
-
-    .keypad-grid {
-        gap: 2px;
-    }
-
-    .op-symbol {
-        font-size: 1.85rem;
-    }
-}
-
-@media screen and (max-height: 650px) {
-    /* Very small displays - Extreme Compression */
-
-    .game-header {
-        height: 28px;
-        padding: 0.06rem 0.35rem;
-    }
-
-    .btn-nav {
-        padding: 0.15rem 0.35rem;
-        font-size: 0.55rem;
-    }
-
-    .difficulty-btn {
-        padding: 0.08rem 0.28rem;
-        font-size: 0.45rem;
-    }
-
-    .score-badge {
-        font-size: 0.58rem;
-        padding: 0.08rem 0.28rem;
-    }
-
-    .main-layout {
-        padding: 2px;
-        gap: 2px;
-    }
-
-    .instruction-pill {
-        padding: 0.1rem 0.42rem;
-        font-size: 0.55rem;
-        margin: 0.12rem auto;
-    }
-
-    #dice-section {
-        height: 32px;
+        min-height: 60px;
+        font-size: 2rem;
     }
 
     .dice-slot {
-        width: 26px;
-        height: 26px;
+        width: 90px;
+        height: 90px;
     }
 
     .dice-number {
-        font-size: 0.95rem;
-    }
-
-    #pizarra-container {
-        height: 50%;
-        margin-bottom: 1px;
-    }
-
-    #input-methods {
-        height: 50%;
-    }
-
-    .keypad-btn {
-        font-size: 0.75rem;
-    }
-
-    .number-box {
-        font-size: 1.5rem;
-    }
-
-    .number-box-giant {
-        font-size: 2.2rem;
-    }
-
-    .keypad-grid {
-        gap: 1px;
-    }
-
-    .op-symbol {
-        font-size: 1.7rem;
+        font-size: 3.5rem;
     }
 }
 

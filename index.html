@@ -179,14 +179,12 @@
                 <div class="panel panel-left">
                     <div id="instruction" class="instruction-pill instruction-neutral">...</div>
                     <div id="dice-section"></div>
-                    <div id="action-buttons"
-                        style="display: flex; gap: 10px; justify-content: center; padding: 8px 10px;">
-                        <button onclick="backspace()" class="keypad-btn btn-backspace"
-                            style="flex: 1; max-width: 200px; font-size: 0.9rem;">⌫ BORRAR</button>
-                        <button onclick="checkAnswerIA()" id="check-btn" class="keypad-btn btn-ok"
-                            style="flex: 1; max-width: 200px; font-size: 0.9rem;">✓ COMPROBAR</button>
-                    </div>
                     <div id="exercise-container"></div>
+                    <div id="action-buttons">
+                        <button onclick="backspace()" class="btn-game-action btn-backspace">⌫ BORRAR</button>
+                        <button onclick="checkAnswerIA()" id="check-btn" class="btn-game-action btn-ok">✓
+                            COMPROBAR</button>
+                    </div>
                 </div>
 
                 <div id="right-panel" class="panel">
