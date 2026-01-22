@@ -132,14 +132,13 @@ class MathApp {
         const safetyMargin = 0.97;
         const scale = Math.min(scaleY, scaleX, 1) * safetyMargin;
 
-        // Aplicar escala si la pantalla es más pequeña que el diseño base o para asegurar el margen
         if (scale < 0.99) {
             appElement.style.transform = `scale(${scale})`;
-            appElement.style.transformOrigin = 'top center'; // Centrar horizontalmente al escalar
+            appElement.style.transformOrigin = 'top left'; // Alineación desde la esquina superior izquierda
             appElement.style.width = `${100 / scale}%`;
             appElement.style.height = `${100 / scale}%`;
 
-            console.log(`⚙️ Auto-scale MateAula con margen: ${(scale * 100).toFixed(1)}% (${viewportWidth}x${viewportHeight})`);
+            console.log(`⚙️ Auto-scale MateAula: ${(scale * 100).toFixed(1)}% (${viewportWidth}x${viewportHeight})`);
         } else {
             // Reset si la pantalla es suficientemente grande
             appElement.style.transform = '';
