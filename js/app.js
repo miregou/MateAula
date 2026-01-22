@@ -130,22 +130,14 @@ class MathApp {
 
         // Ajuste: Priorizamos que QUEPA VERTICALMENTE con un margen de seguridad
         const safetyMargin = 0.97;
-        const scale = Math.min(scaleY, scaleX, 1) * safetyMargin;
+        const scale = Math.min(viewportWidth / baseWidth, viewportHeight / baseHeight, 1) * 0.98;
 
-        if (scale < 0.99) {
-            appElement.style.transform = `scale(${scale})`;
-            appElement.style.transformOrigin = 'top left'; // Alineación desde la esquina superior izquierda
-            appElement.style.width = `${100 / scale}%`;
-            appElement.style.height = `${100 / scale}%`;
+        appElement.style.transform = `scale(${scale})`;
+        appElement.style.transformOrigin = 'center center';
+        appElement.style.width = `${baseWidth}px`;
+        appElement.style.height = `${baseHeight}px`;
 
-            console.log(`⚙️ Auto-scale MateAula: ${(scale * 100).toFixed(1)}% (${viewportWidth}x${viewportHeight})`);
-        } else {
-            // Reset si la pantalla es suficientemente grande
-            appElement.style.transform = '';
-            appElement.style.width = '';
-            appElement.style.height = '';
-            appElement.style.transformOrigin = '';
-        }
+        console.log(`⚙️ Universal Scale MateAula: ${(scale * 100).toFixed(1)}% (${viewportWidth}x${viewportHeight})`);
     }
 
     initPizarraWhenReady() {
