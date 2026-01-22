@@ -13,6 +13,10 @@ class MathApp {
         this.roundFinished = false;
 
         this.userInputValue = "";
+
+        // OPTIMIZACIÓN: Array para cleanup tasks
+        this.cleanupTasks = [];
+        this.canvasHandlers = null;
         this.userSelectedSymbol = null;
         this.lectInputs = { pures: "", units: "", total: "" };
         this.activeField = 'pures';
@@ -75,6 +79,7 @@ class MathApp {
     }
 
     init() {
+        this.autoScaleForSmartboard();
         this.bindEvents();
         // Wait for DOM to be fully ready
         if (document.readyState === 'loading') {
@@ -82,7 +87,66 @@ class MathApp {
         } else {
             this.initPizarraWhenReady();
         }
-        window.addEventListener('resize', () => this.resizeCanvas());
+
+        // OPTIMIZACIÓN: Debounced resize para mejor performance
+        const debouncedResize = this.debounce(() => {
+            this.autoScaleForSmartboard();
+            this.resizeCanvas();
+        }, 150);
+
+        window.addEventListener('resize', debouncedResize);
+        this.cleanupTasks.push(() => window.removeEventListener('resize', debouncedResize));
+    }
+
+    /**
+     * Debounce utility - Delays execution until after wait time has elapsed
+     */
+    debounce(fn, delay = 300) {
+        let timeoutId;
+        return (...args) => {
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(() => fn.apply(this, args), delay);
+        };
+    }
+
+    /**
+     * Auto-scale para smartboards - Escala automáticamente el contenido
+     * para que encaje perfectamente en cualquier resolución de pantalla
+     */
+    autoScaleForSmartboard() {
+        const appElement = document.getElementById('app');
+        if (!appElement) return;
+
+        const viewportHeight = window.innerHeight;
+        const viewportWidth = window.innerWidth;
+
+        // Resolución de diseño base
+        const baseHeight = 1080;
+        const baseWidth = 1920;
+
+        // Calcular el factor de escala necesario
+        const scaleY = viewportHeight / baseHeight;
+        const scaleX = viewportWidth / baseWidth;
+
+        // Ajuste: Priorizamos que QUEPA VERTICALMENTE con un margen de seguridad
+        const safetyMargin = 0.97;
+        const scale = Math.min(scaleY, scaleX, 1) * safetyMargin;
+
+        // Aplicar escala si la pantalla es más pequeña que el diseño base o para asegurar el margen
+        if (scale < 0.99) {
+            appElement.style.transform = `scale(${scale})`;
+            appElement.style.transformOrigin = 'top center'; // Centrar horizontalmente al escalar
+            appElement.style.width = `${100 / scale}%`;
+            appElement.style.height = `${100 / scale}%`;
+
+            console.log(`⚙️ Auto-scale MateAula con margen: ${(scale * 100).toFixed(1)}% (${viewportWidth}x${viewportHeight})`);
+        } else {
+            // Reset si la pantalla es suficientemente grande
+            appElement.style.transform = '';
+            appElement.style.width = '';
+            appElement.style.height = '';
+            appElement.style.transformOrigin = '';
+        }
     }
 
     initPizarraWhenReady() {
@@ -983,11 +1047,16 @@ class MathApp {
     }
 
     getRandomNumber(limit) {
-        let max = this.currentDifficulty === 1 ? 10 : (this.currentDifficulty === 2 ? 50 : 100);
-        if (limit !== undefined) {
-            max = Math.min(max, limit);
-        }
-        return Math.floor(Math.random() * max) + 1;
+        // OPTIMIZACIÓN: Usar constantes en lugar de magic numbers
+        const difficultyLimits = {
+            1: 10,  // EASY
+            2: 50,  // MEDIUM
+            3: 100  // HARD
+        };
+
+        const max = difficultyLimits[this.currentDifficulty] ?? 10;
+        const finalMax = limit !== undefined ? Math.min(max, limit) : max;
+        return Math.floor(Math.random() * finalMax) + 1;
     }
 
     // --- Helper for Colors ---
@@ -1033,50 +1102,101 @@ class MathApp {
         const canvas = this.elements.canvas;
         if (!canvas) return;
 
-        canvas.addEventListener('mousedown', (e) => this.startDrawing(e));
-        canvas.addEventListener('mousemove', (e) => this.draw(e));
-        canvas.addEventListener('mouseup', () => this.stopDrawing());
-        canvas.addEventListener('mouseout', () => this.stopDrawing());
+        // OPTIMIZACIÓN: Store handlers para cleanup posterior
+        this.canvasHandlers = {
+            mousedown: (e) => this.startDrawing(e),
+            mousemove: (e) => this.draw(e),
+            mouseup: () => this.stopDrawing(),
+            mouseout: () => this.stopDrawing(),
+            touchstart: (e) => {
+                e.preventDefault();
+                this.startDrawing(e.touches[0]);
+            },
+            touchmove: (e) => {
+                e.preventDefault();
+                this.draw(e.touches[0]);
+            },
+            touchend: () => this.stopDrawing()
+        };
 
-        // Touch events
-        canvas.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            this.startDrawing(e.touches[0]);
-        }, { passive: false });
-        canvas.addEventListener('touchmove', (e) => {
-            e.preventDefault();
-            this.draw(e.touches[0]);
-        }, { passive: false });
-        canvas.addEventListener('touchend', () => this.stopDrawing());
+        // Add event listeners
+        canvas.addEventListener('mousedown', this.canvasHandlers.mousedown);
+        canvas.addEventListener('mousemove', this.canvasHandlers.mousemove);
+        canvas.addEventListener('mouseup', this.canvasHandlers.mouseup);
+        canvas.addEventListener('mouseout', this.canvasHandlers.mouseout);
+
+        canvas.addEventListener('touchstart', this.canvasHandlers.touchstart, { passive: false });
+        canvas.addEventListener('touchmove', this.canvasHandlers.touchmove, { passive: false });
+        canvas.addEventListener('touchend', this.canvasHandlers.touchend, { passive: true });
+
+        // Store cleanup
+        this.cleanupTasks.push(() => this.cleanupCanvas());
 
         this.resizeCanvas();
     }
 
-    resizeCanvas() {
+    /**
+     * OPTIMIZACIÓN: Cleanup de event listeners del canvas
+     */
+    cleanupCanvas() {
         const canvas = this.elements.canvas;
-        if (!canvas) return;
+        if (!canvas || !this.canvasHandlers) return;
 
-        const wrapper = canvas.parentElement;
-        if (!wrapper) return;
+        try {
+            Object.entries(this.canvasHandlers).forEach(([event, handler]) => {
+                canvas.removeEventListener(event, handler);
+            });
+        } catch (error) {
+            console.warn('Error cleaning up canvas listeners:', error);
+        }
+    }
 
-        const rect = wrapper.getBoundingClientRect();
-        canvas.width = rect.width;
-        canvas.height = rect.height;
+    resizeCanvas() {
+        try {
+            const canvas = this.elements.canvas;
+            if (!canvas) {
+                console.warn('Canvas element not found');
+                return;
+            }
 
-        const ctx = this.elements.ctx;
-        if (ctx) {
-            ctx.lineCap = 'round';
-            ctx.lineJoin = 'round';
-            ctx.lineWidth = 4;
-            ctx.strokeStyle = '#2563eb';
+            const wrapper = canvas.parentElement;
+            if (!wrapper) {
+                console.warn('Canvas wrapper not found');
+                return;
+            }
+
+            const rect = wrapper.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+
+            // OPTIMIZACIÓN: Objeto de configuración del canvas
+            const ctx = this.elements.ctx;
+            if (ctx) {
+                const canvasConfig = {
+                    lineCap: 'round',
+                    lineJoin: 'round',
+                    lineWidth: 4,
+                    strokeStyle: '#2563eb'
+                };
+                Object.assign(ctx, canvasConfig);
+            }
+        } catch (error) {
+            console.error('Error resizing canvas:', error);
+            // Continuar sin bloquear la aplicación
         }
     }
 
     startDrawing(e) {
-        this.isDrawing = true;
-        const rect = this.elements.canvas.getBoundingClientRect();
-        this.lastX = e.clientX - rect.left;
-        this.lastY = e.clientY - rect.top;
+        try {
+            this.isDrawing = true;
+            const rect = this.elements.canvas.getBoundingClientRect();
+            // OPTIMIZACIÓN: Usar nullish coalescing para compatibilidad touch/mouse
+            this.lastX = (e.clientX ?? e.pageX) - rect.left;
+            this.lastY = (e.clientY ?? e.pageY) - rect.top;
+        } catch (error) {
+            console.error('Error starting drawing:', error);
+            this.stopDrawing();
+        }
     }
 
     draw(e) {

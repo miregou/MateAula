@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Nexia: Mates - Pizarra Multiactividad</title>
     <link rel="stylesheet" href="css/styles.css?v=9.0">
     <link rel="stylesheet" href="css/responsive.css?v=1.0">
@@ -178,8 +178,15 @@
             <div id="game-container" class="main-layout">
                 <div class="panel panel-left">
                     <div id="instruction" class="instruction-pill instruction-neutral">...</div>
-                    <div id="exercise-container"></div>
                     <div id="dice-section"></div>
+                    <div id="action-buttons"
+                        style="display: flex; gap: 10px; justify-content: center; padding: 8px 10px;">
+                        <button onclick="backspace()" class="keypad-btn btn-backspace"
+                            style="flex: 1; max-width: 200px; font-size: 0.9rem;">⌫ BORRAR</button>
+                        <button onclick="checkAnswerIA()" id="check-btn" class="keypad-btn btn-ok"
+                            style="flex: 1; max-width: 200px; font-size: 0.9rem;">✓ COMPROBAR</button>
+                    </div>
+                    <div id="exercise-container"></div>
                 </div>
 
                 <div id="right-panel" class="panel">
@@ -190,18 +197,16 @@
                     </div>
                     <div id="input-methods">
                         <div id="num-keypad" class="keypad-grid">
+                            <button onclick="pressNum(0)" class="keypad-btn">0</button>
                             <button onclick="pressNum(1)" class="keypad-btn">1</button>
                             <button onclick="pressNum(2)" class="keypad-btn">2</button>
                             <button onclick="pressNum(3)" class="keypad-btn">3</button>
                             <button onclick="pressNum(4)" class="keypad-btn">4</button>
                             <button onclick="pressNum(5)" class="keypad-btn">5</button>
-                            <button onclick="backspace()" class="keypad-btn btn-backspace">⌫</button>
                             <button onclick="pressNum(6)" class="keypad-btn">6</button>
                             <button onclick="pressNum(7)" class="keypad-btn">7</button>
                             <button onclick="pressNum(8)" class="keypad-btn">8</button>
                             <button onclick="pressNum(9)" class="keypad-btn">9</button>
-                            <button onclick="pressNum(0)" class="keypad-btn">0</button>
-                            <button onclick="checkAnswerIA()" id="check-btn" class="keypad-btn btn-ok">OK</button>
                         </div>
                         <div id="symbol-keypad" class="hidden symbol-grid" style="gap:1.5rem;">
                             <!-- LESS THAN: Blue -->

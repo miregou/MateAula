@@ -52,7 +52,7 @@ body {
     display: flex;
     flex-direction: column;
     height: 100%;
-    max-width: 1400px;
+    max-width: none;
     margin: 0 auto;
 }
 
@@ -146,7 +146,7 @@ body {
 .menu-card {
     background: var(--white);
     border-radius: var(--radius-md);
-    padding: 0.75rem;
+    padding: 1rem;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -155,7 +155,9 @@ body {
     cursor: pointer;
     border: 3px solid transparent;
     box-shadow: var(--shadow-card);
-    transition: transform 0.1s, box-shadow 0.1s, border-color 0.2s;
+    transition: all 0.2s ease;
+    min-height: 120px;
+    min-width: 130px;
 }
 
 .menu-card:hover {
@@ -165,8 +167,15 @@ body {
 }
 
 .menu-card:active {
-    transform: translateY(2px);
+    transform: translateY(2px) scale(0.98);
     box-shadow: 0 2px 0 var(--neutral-300);
+    background: var(--off-white);
+}
+
+@media (hover: none) {
+    .menu-card:active {
+        border-color: var(--secondary);
+    }
 }
 
 .icon-box svg {
@@ -196,12 +205,12 @@ body {
 
 .game-header {
     background: var(--secondary);
-    padding: 0.25rem 1rem;
+    padding: 0.15rem 1rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
     border-bottom: 3px solid var(--secondary-dark);
-    height: 50px;
+    height: 44px;
     flex-shrink: 0;
 }
 
@@ -209,17 +218,26 @@ body {
 .btn-nav {
     background: var(--white);
     border: none;
-    padding: 0.5rem 1rem;
+    padding: 0.6rem 1.2rem;
     border-radius: var(--radius-sm);
     font-weight: 700;
     cursor: pointer;
-    font-size: 0.8rem;
+    font-size: 0.85rem;
     box-shadow: var(--shadow-sm);
-    transition: 0.2s;
+    transition: all 0.2s ease;
+    min-height: 44px;
+    min-width: 44px;
 }
 
 .btn-nav:hover {
     background: var(--off-white);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.btn-nav:active {
+    transform: translateY(0);
+    box-shadow: var(--shadow-sm);
 }
 
 .difficulty-group {
@@ -230,28 +248,43 @@ body {
 .difficulty-btn {
     border: 2px solid var(--primary-light);
     background: var(--white);
-    padding: 0.25rem 0.75rem;
+    padding: 0.5rem 1rem;
     border-radius: var(--radius-full);
     font-weight: 700;
-    font-size: 0.7rem;
+    font-size: 0.8rem;
     cursor: pointer;
+    min-height: 44px;
+    min-width: 60px;
+    transition: all 0.2s ease;
+}
+
+.difficulty-btn:hover:not(.active) {
+    background: var(--primary-light);
+    transform: translateY(-1px);
+}
+
+.difficulty-btn:active {
+    transform: scale(0.95);
 }
 
 .difficulty-btn.active {
     background: var(--primary);
     color: var(--white);
     border-color: var(--primary-dark);
+    box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
 }
 
 .score-badge {
     background: var(--white);
-    padding: 0.25rem 0.75rem;
+    padding: 0.5rem 1rem;
     border-radius: var(--radius-full);
     font-weight: 700;
-    font-size: 0.9rem;
+    font-size: 1rem;
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    min-height: 44px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 /* Main Game Layout */
@@ -287,8 +320,8 @@ body {
 }
 
 .instruction-pill {
-    margin: 0.5rem auto;
-    padding: 0.4rem 1.2rem;
+    margin: 0.25rem auto;
+    padding: 0.25rem 1.2rem;
     border-radius: var(--radius-full);
     font-weight: 700;
     font-size: 0.85rem;
@@ -403,7 +436,7 @@ body {
 
 /* --- PIZARRA PANEL --- */
 #pizarra-container {
-    height: 70%;
+    height: 60%;
     background: var(--white);
     border: 3px dashed var(--neutral-300);
     border-radius: var(--radius-md);
@@ -439,7 +472,7 @@ body {
 
 /* Keypad */
 #input-methods {
-    height: 30%;
+    height: 40%;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -447,26 +480,35 @@ body {
 
 .keypad-grid {
     display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    grid-template-rows: repeat(2, 1fr);
-    gap: 4px;
+    grid-template-columns: repeat(10, 1fr);
+    grid-template-rows: 1fr;
+    gap: 6px;
     height: 100%;
 }
 
 .keypad-btn {
     background: var(--white);
-    border: 2px solid var(--primary-light);
+    border: 3px solid var(--primary-light);
     border-radius: 12px;
-    font-size: 1.5rem;
+    font-size: 1.6rem;
     font-weight: 700;
     color: var(--neutral-800);
     box-shadow: 0 4px 0 var(--primary-light);
     cursor: pointer;
+    min-height: 50px;
+    transition: all 0.1s ease;
+}
+
+.keypad-btn:hover:not(:active) {
+    background: var(--primary-light);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0 var(--primary);
 }
 
 .keypad-btn:active {
     transform: translateY(2px);
     box-shadow: 0 2px 0 var(--primary-light);
+    background: var(--off-white);
 }
 
 .btn-backspace {
@@ -476,11 +518,23 @@ body {
     box-shadow: 0 4px 0 #b91c1c;
 }
 
+.btn-backspace:hover:not(:active) {
+    background: #dc2626;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0 #b91c1c;
+}
+
 .btn-ok {
     background: var(--success);
     color: white;
     border-color: var(--success);
     box-shadow: 0 4px 0 #15803d;
+}
+
+.btn-ok:hover:not(:active) {
+    background: #16a34a;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0 #15803d;
 }
 
 /* Symbols Keypad */
